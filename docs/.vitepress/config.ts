@@ -40,12 +40,14 @@ export default defineConfig({
         {
           text: 'Advanced',
           items: [
+            { text: 'Writing Effective Scenarios', link: '/guide/writing-effective-scenarios' },
             { text: 'Custom Metrics', link: '/guide/custom-metrics' },
             { text: 'Comparison Mode', link: '/guide/comparison-mode' },
             { text: 'Framework Integration', link: '/guide/framework-integration' },
             { text: 'Vitest Integration', link: '/guide/vitest-integration' },
             { text: 'Local LLMs', link: '/guide/local-llms' },
             { text: 'Reporters', link: '/guide/reporters' },
+            { text: 'Troubleshooting', link: '/guide/troubleshooting' },
           ],
         },
       ],

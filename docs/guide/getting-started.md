@@ -76,7 +76,8 @@ scenario('user books a morning slot', {
 ### 3. Run the tests
 
 ```bash
-npx agentest run
+# If your agent runs on localhost, allow private endpoints:
+AGENTEST_ALLOW_PRIVATE_ENDPOINTS=1 npx agentest run
 ```
 
 You should see output like:

@@ -12,6 +12,14 @@ Agentest spins up LLM-powered simulated users that talk to your agent, intercept
 npm install @agentesting/agentest --save-dev
 ```
 
+> **[Read the full documentation](https://r-prem.github.io/agentest/)** for guides, examples, and API reference.
+
+### Prerequisites
+
+- **Node.js >= 20**
+- **A running agent** — either an HTTP endpoint that accepts OpenAI-compatible chat completions requests, or any agent you can call from a TypeScript function (see [Custom Handler](#custom-handler))
+- **An LLM API key** — Agentest uses an LLM for the simulated user and evaluation judges. Set `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY` depending on your configured provider. Alternatively, use a [local LLM](#local-llms) for zero-cost development.
+
 ### Features
 
 | | |
@@ -130,6 +138,7 @@ These tools are complementary. Run Agentest in CI to catch regressions before de
 - [Local LLMs](#local-llms)
 - [Pass/Fail Logic](#passfail-logic)
 - [Programmatic Usage](#programmatic-usage)
+- [Understanding LLM Usage](#understanding-llm-usage)
 - [Requirements](#requirements)
 - [License](#license)
 
@@ -198,7 +207,8 @@ scenario('user books a morning slot', {
 ### 3. Run
 
 ```bash
-npx agentest run
+# If your agent runs on localhost, allow private endpoints:
+AGENTEST_ALLOW_PRIVATE_ENDPOINTS=1 npx agentest run
 ```
 
 Output:
@@ -1469,10 +1479,47 @@ scenario('booking query routes correctly', {
 
 ---
 
+## Understanding LLM Usage
+
+Agentest makes many LLM calls per run. Understanding the cost structure helps you design cost-effective tests.
+
+**Per scenario with default settings** (3 conversations, ~4 turns each, all 7 metrics):
+
+| Phase | Calls | Formula |
+|-------|-------|---------|
+| Simulation (simulated user messages) | ~12 | conversations × turns |
+| Simulation (goal-check per turn) | ~12 | conversations × turns |
+| Evaluation (per-turn metrics) | ~84 | conversations × turns × 7 metrics |
+| Evaluation (goal_completion) | 3 | conversations × 1 |
+| Error deduplication | 1 | 1 per scenario |
+| **Total** | **~112** | |
+
+**Tips to reduce cost during development:**
+
+- `conversationsPerScenario: 1` — 3x reduction
+- `maxTurns: 4` — shorter conversations
+- `metrics: ['helpfulness', 'goal_completion']` — only run key metrics (~3x reduction on evaluation)
+- `--scenario "name"` — run only the scenario you're iterating on
+
+You can use environment variables to switch between cheap dev runs and thorough CI runs:
+
+```ts
+const isDev = process.env.CI !== 'true'
+
+export default defineConfig({
+  conversationsPerScenario: isDev ? 1 : 5,
+  maxTurns: isDev ? 4 : 8,
+  metrics: isDev ? ['helpfulness', 'goal_completion'] : undefined, // undefined = all
+})
+```
+
+---
+
 ## Requirements
 
 - Node.js >= 20
 - Your agent must either expose an OpenAI-compatible chat completions endpoint, or use a custom handler function (see [Agent Configuration](#agent-configuration))
+- An LLM API key for the simulated user and evaluation (Anthropic, OpenAI, Google, or a [local LLM](#local-llms))
 
 ## License
 
