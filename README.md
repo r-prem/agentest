@@ -6,13 +6,13 @@
 
 **Vitest for AI agents.** Scenario-based testing with simulated users, tool-call mocks, and LLM-as-judge evaluation. Lives in your project like Playwright. Run with `npx agentest run`.
 
+**[Documentation](https://r-prem.github.io/agentest/)** | **[Getting Started](https://r-prem.github.io/agentest/guide/getting-started)** | **[Examples](https://r-prem.github.io/agentest/examples/basic-scenario)**
+
 Agentest spins up LLM-powered simulated users that talk to your agent, intercepts tool calls through mocks, and evaluates every turn with LLM-as-judge metrics — all without touching your agent's code.
 
 ```bash
 npm install @agentesting/agentest --save-dev
 ```
-
-> **[Read the full documentation](https://r-prem.github.io/agentest/)** for guides, examples, and API reference.
 
 ### Prerequisites
 
