@@ -324,8 +324,6 @@ Integrates with GitHub Actions to show test results directly in your PR.
 
 The reporter writes a markdown summary to `$GITHUB_STEP_SUMMARY`:
 
-<img width="600" alt="GitHub Actions Summary" src="/docs-images/gh-summary.png">
-
 ```markdown
 ## Agentest Results
 
