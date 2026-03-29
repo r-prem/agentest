@@ -18,10 +18,7 @@ import * as prompts from './evaluator/prompts.js'
 
 const program = new Command()
 
-program
-  .name('agentest')
-  .description('Agent simulation & evaluation framework')
-  .version('0.1.0')
+program.name('agentest').description('Agent simulation & evaluation framework').version('0.1.0')
 
 program
   .command('run')
@@ -31,108 +28,113 @@ program
   .option('--scenario <name>', 'Run only scenarios matching this name')
   .option('--verbose', 'Print full conversation transcripts')
   .option('-w, --watch', 'Watch for file changes and re-run')
-  .action(async (opts: { config?: string; cwd: string; scenario?: string; verbose?: boolean; watch?: boolean }) => {
-    const configPath = await resolveConfigPath(opts.cwd, opts.config)
+  .action(
+    async (opts: {
+      config?: string
+      cwd: string
+      scenario?: string
+      verbose?: boolean
+      watch?: boolean
+    }) => {
+      const configPath = await resolveConfigPath(opts.cwd, opts.config)
 
-    const executeRun = async () => {
-      const config = await loadConfig(configPath, opts.cwd)
-      const discoveries = await discoverAndLoad(config, opts.cwd)
+      const executeRun = async () => {
+        const config = await loadConfig(configPath, opts.cwd)
+        const discoveries = await discoverAndLoad(config, opts.cwd)
 
-      // Filter by scenario name if specified
-      if (opts.scenario) {
-        for (const d of discoveries) {
-          d.scenarios = d.scenarios.filter((s) =>
-            s.name.toLowerCase().includes(opts.scenario!.toLowerCase()),
-          )
-        }
-      }
-
-      const totalScenarios = discoveries.reduce(
-        (sum, d) => sum + d.scenarios.length,
-        0,
-      )
-
-      if (totalScenarios === 0) {
-        console.error('No scenarios found. Check your include/exclude patterns.')
-        if (!opts.watch) process.exit(1)
-        return false
-      }
-
-      const reporters = createReporters(config, opts.verbose)
-      const runner = new Runner(config, reporters)
-
-      const isComparison = config.compare && config.compare.length > 0
-      if (isComparison) {
-        const result = await runner.runComparison(discoveries)
-        return result.passed
-      } else {
-        const result = await runner.run(discoveries)
-        return result.passed
-      }
-    }
-
-    if (!opts.watch) {
-      const passed = await executeRun()
-      process.exit(passed ? 0 : 1)
-    }
-
-    // Watch mode
-    await executeRun()
-    console.log('\n\x1b[2mWatching for changes... (press Ctrl+C to stop)\x1b[0m\n')
-
-    const absConfigPath = path.resolve(opts.cwd, configPath)
-    const watchDirs = new Set<string>()
-    watchDirs.add(path.dirname(absConfigPath))
-    watchDirs.add(opts.cwd)
-
-    const watchers: FSWatcher[] = []
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null
-    let running = false
-
-    const triggerRerun = () => {
-      if (debounceTimer) clearTimeout(debounceTimer)
-      debounceTimer = setTimeout(async () => {
-        if (running) return
-        running = true
-        console.clear()
-        try {
-          await executeRun()
-        } catch (error) {
-          console.error('Run failed:', error instanceof Error ? error.message : error)
-        }
-        running = false
-        console.log('\n\x1b[2mWatching for changes... (press Ctrl+C to stop)\x1b[0m\n')
-      }, 300)
-    }
-
-    for (const dir of watchDirs) {
-      try {
-        const watcher = watch(dir, { recursive: true }, (eventType, filename) => {
-          if (!filename) return
-          // Only react to relevant files
-          if (
-            filename.endsWith('.sim.ts') ||
-            filename.endsWith('.sim.js') ||
-            filename.includes('agentest.config')
-          ) {
-            triggerRerun()
+        // Filter by scenario name if specified
+        if (opts.scenario) {
+          for (const d of discoveries) {
+            d.scenarios = d.scenarios.filter((s) =>
+              s.name.toLowerCase().includes(opts.scenario!.toLowerCase()),
+            )
           }
-        })
-        watchers.push(watcher)
-      } catch {
-        // Directory might not exist, skip
-      }
-    }
+        }
 
-    // Graceful shutdown
-    const cleanup = () => {
-      if (debounceTimer) clearTimeout(debounceTimer)
-      for (const w of watchers) w.close()
-      process.exit(0)
-    }
-    process.on('SIGINT', cleanup)
-    process.on('SIGTERM', cleanup)
-  })
+        const totalScenarios = discoveries.reduce((sum, d) => sum + d.scenarios.length, 0)
+
+        if (totalScenarios === 0) {
+          console.error('No scenarios found. Check your include/exclude patterns.')
+          if (!opts.watch) process.exit(1)
+          return false
+        }
+
+        const reporters = createReporters(config, opts.verbose)
+        const runner = new Runner(config, reporters)
+
+        const isComparison = config.compare && config.compare.length > 0
+        if (isComparison) {
+          const result = await runner.runComparison(discoveries)
+          return result.passed
+        } else {
+          const result = await runner.run(discoveries)
+          return result.passed
+        }
+      }
+
+      if (!opts.watch) {
+        const passed = await executeRun()
+        process.exit(passed ? 0 : 1)
+      }
+
+      // Watch mode
+      await executeRun()
+      console.log('\n\x1b[2mWatching for changes... (press Ctrl+C to stop)\x1b[0m\n')
+
+      const absConfigPath = path.resolve(opts.cwd, configPath)
+      const watchDirs = new Set<string>()
+      watchDirs.add(path.dirname(absConfigPath))
+      watchDirs.add(opts.cwd)
+
+      const watchers: FSWatcher[] = []
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null
+      let running = false
+
+      const triggerRerun = () => {
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(async () => {
+          if (running) return
+          running = true
+          console.clear()
+          try {
+            await executeRun()
+          } catch (error) {
+            console.error('Run failed:', error instanceof Error ? error.message : error)
+          }
+          running = false
+          console.log('\n\x1b[2mWatching for changes... (press Ctrl+C to stop)\x1b[0m\n')
+        }, 300)
+      }
+
+      for (const dir of watchDirs) {
+        try {
+          const watcher = watch(dir, { recursive: true }, (eventType, filename) => {
+            if (!filename) return
+            // Only react to relevant files
+            if (
+              filename.endsWith('.sim.ts') ||
+              filename.endsWith('.sim.js') ||
+              filename.includes('agentest.config')
+            ) {
+              triggerRerun()
+            }
+          })
+          watchers.push(watcher)
+        } catch {
+          // Directory might not exist, skip
+        }
+      }
+
+      // Graceful shutdown
+      const cleanup = () => {
+        if (debounceTimer) clearTimeout(debounceTimer)
+        for (const w of watchers) w.close()
+        process.exit(0)
+      }
+      process.on('SIGINT', cleanup)
+      process.on('SIGTERM', cleanup)
+    },
+  )
 
 program
   .command('show-prompts')
@@ -190,14 +192,11 @@ async function resolveConfigPath(cwd: string, explicit?: string): Promise<string
 
   throw new Error(
     `No config file found. Looked for: ${CONFIG_CANDIDATES.join(', ')}\n` +
-    `Create one or specify a path with --config`,
+      `Create one or specify a path with --config`,
   )
 }
 
-async function loadConfig(
-  configPath: string,
-  cwd: string,
-): Promise<AgentestConfig> {
+async function loadConfig(configPath: string, cwd: string): Promise<AgentestConfig> {
   const absPath = path.resolve(cwd, configPath)
   const ext = path.extname(absPath).toLowerCase()
 
@@ -209,7 +208,9 @@ async function loadConfig(
     }
 
     const jiti = createJiti(import.meta.url, { interopDefault: true })
-    const mod = (await jiti.import(absPath)) as { default?: AgentestConfig | AgentestConfigInput } & (AgentestConfig | AgentestConfigInput)
+    const mod = (await jiti.import(absPath)) as {
+      default?: AgentestConfig | AgentestConfigInput
+    } & (AgentestConfig | AgentestConfigInput)
     const config = mod.default ?? mod
     return defineConfig(config as AgentestConfigInput)
   } catch (error) {

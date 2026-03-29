@@ -42,7 +42,9 @@ export async function loadScenarioFile(filePath: string): Promise<Scenario[]> {
   // Chain onto the lock so only one file loads at a time
   const release = registryLock
   let resolve: () => void
-  registryLock = new Promise<void>((r) => { resolve = r })
+  registryLock = new Promise<void>((r) => {
+    resolve = r
+  })
 
   await release
 

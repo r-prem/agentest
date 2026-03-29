@@ -11,10 +11,7 @@ export interface TrajectoryResult {
 }
 
 export class TrajectoryMatcher {
-  match(
-    actual: ToolCallRecord[],
-    assertions: TrajectoryAssertions,
-  ): TrajectoryResult {
+  match(actual: ToolCallRecord[], assertions: TrajectoryAssertions): TrajectoryResult {
     const { matchMode, expected, forbidden } = assertions
 
     let result: TrajectoryResult
@@ -46,19 +43,14 @@ export class TrajectoryMatcher {
           ? `${result.failureLabel}; forbidden tools called`
           : 'forbidden tools called'
         const forbiddenReason = `Forbidden tool calls: ${forbiddenCalls.join(', ')}`
-        result.reason = hadPriorFailure
-          ? `${result.reason}. ${forbiddenReason}`
-          : forbiddenReason
+        result.reason = hadPriorFailure ? `${result.reason}. ${forbiddenReason}` : forbiddenReason
       }
     }
 
     return result
   }
 
-  private matchStrict(
-    actual: ToolCallRecord[],
-    expected: ToolCallAssertion[],
-  ): TrajectoryResult {
+  private matchStrict(actual: ToolCallRecord[], expected: ToolCallAssertion[]): TrajectoryResult {
     const orderingIssues: string[] = []
 
     // Check positional matches across the overlapping range
@@ -68,17 +60,13 @@ export class TrajectoryMatcher {
       const exp = expected[i]
 
       if (act.name !== exp.name) {
-        orderingIssues.push(
-          `Position ${i}: expected "${exp.name}", got "${act.name}"`,
-        )
+        orderingIssues.push(`Position ${i}: expected "${exp.name}", got "${act.name}"`)
         continue
       }
 
       const argResult = this.matchArgs(act.args, exp)
       if (!argResult.matched) {
-        orderingIssues.push(
-          `Position ${i} (${exp.name}): ${argResult.reason}`,
-        )
+        orderingIssues.push(`Position ${i} (${exp.name}): ${argResult.reason}`)
       }
     }
 
@@ -110,9 +98,7 @@ export class TrajectoryMatcher {
     }
 
     const matched =
-      missingCalls.length === 0 &&
-      extraCalls.length === 0 &&
-      orderingIssues.length === 0
+      missingCalls.length === 0 && extraCalls.length === 0 && orderingIssues.length === 0
 
     return {
       matched,
@@ -137,10 +123,7 @@ export class TrajectoryMatcher {
 
     for (const exp of expected) {
       const idx = actual.findIndex(
-        (act, i) =>
-          !used.has(i) &&
-          act.name === exp.name &&
-          this.matchArgs(act.args, exp).matched,
+        (act, i) => !used.has(i) && act.name === exp.name && this.matchArgs(act.args, exp).matched,
       )
 
       if (idx === -1) {
@@ -171,19 +154,13 @@ export class TrajectoryMatcher {
     }
   }
 
-  private matchContains(
-    actual: ToolCallRecord[],
-    expected: ToolCallAssertion[],
-  ): TrajectoryResult {
+  private matchContains(actual: ToolCallRecord[], expected: ToolCallAssertion[]): TrajectoryResult {
     const missingCalls: string[] = []
     const used = new Set<number>()
 
     for (const exp of expected) {
       const idx = actual.findIndex(
-        (act, i) =>
-          !used.has(i) &&
-          act.name === exp.name &&
-          this.matchArgs(act.args, exp).matched,
+        (act, i) => !used.has(i) && act.name === exp.name && this.matchArgs(act.args, exp).matched,
       )
 
       if (idx === -1) {
@@ -208,10 +185,7 @@ export class TrajectoryMatcher {
     }
   }
 
-  private matchWithin(
-    actual: ToolCallRecord[],
-    expected: ToolCallAssertion[],
-  ): TrajectoryResult {
+  private matchWithin(actual: ToolCallRecord[], expected: ToolCallAssertion[]): TrajectoryResult {
     const extraCalls: string[] = []
     const orderingIssues: string[] = []
     const allowedNames = new Set(expected.map((e) => e.name))
@@ -224,7 +198,10 @@ export class TrajectoryMatcher {
 
       // Check args against matching expected assertions
       const matchingExpected = expected.filter((e) => e.name === act.name)
-      if (matchingExpected.length > 0 && matchingExpected.some((e) => e.argMatchMode && e.argMatchMode !== 'ignore')) {
+      if (
+        matchingExpected.length > 0 &&
+        matchingExpected.some((e) => e.argMatchMode && e.argMatchMode !== 'ignore')
+      ) {
         const argsOk = matchingExpected.some((e) => this.matchArgs(act.args, e).matched)
         if (!argsOk) {
           orderingIssues.push(
@@ -261,9 +238,10 @@ export class TrajectoryMatcher {
 
         const argsMatch = this.matchArgs(act.args, rule)
         if (argsMatch.matched) {
-          const detail = rule.argMatchMode && rule.argMatchMode !== 'ignore'
-            ? `${act.name}(${JSON.stringify(act.args)})`
-            : act.name
+          const detail =
+            rule.argMatchMode && rule.argMatchMode !== 'ignore'
+              ? `${act.name}(${JSON.stringify(act.args)})`
+              : act.name
           found.push(detail)
           break // one match per forbidden rule is enough
         }

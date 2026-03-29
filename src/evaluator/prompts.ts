@@ -252,10 +252,7 @@ For each unique root cause, provide:
 
 The goal is to reduce N failure instances down to a small number of distinct root causes that a developer can act on.`
 
-export function renderPrompt(
-  template: string,
-  vars: Record<string, string>,
-): string {
+export function renderPrompt(template: string, vars: Record<string, string>): string {
   // Single-pass substitution prevents cross-variable injection:
   // a value for an early key cannot inject a {{laterKey}} placeholder.
   return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
@@ -275,13 +272,12 @@ export function wrapContent(label: string, content: string): string {
   return `<${label}>\n${escaped}\n</${label}>`
 }
 
-export function formatHistory(
-  turns: Array<{ userMessage: string; agentMessage: string }>,
-): string {
+export function formatHistory(turns: Array<{ userMessage: string; agentMessage: string }>): string {
   if (turns.length === 0) return '(no prior turns)'
   return turns
-    .map((t, i) =>
-      `Turn ${i + 1}:\nUser: ${wrapContent('user-message', t.userMessage)}\nAgent: ${wrapContent('agent-message', t.agentMessage)}`,
+    .map(
+      (t, i) =>
+        `Turn ${i + 1}:\nUser: ${wrapContent('user-message', t.userMessage)}\nAgent: ${wrapContent('agent-message', t.agentMessage)}`,
     )
     .join('\n\n')
 }
@@ -302,26 +298,19 @@ export function formatToolCallSignatures(
   toolCalls: Array<{ name: string; args: Record<string, unknown> }>,
 ): string {
   if (toolCalls.length === 0) return '(no tool calls)'
-  return toolCalls
-    .map((tc) => `Tool: ${tc.name}\nArgs: ${JSON.stringify(tc.args)}`)
-    .join('\n\n')
+  return toolCalls.map((tc) => `Tool: ${tc.name}\nArgs: ${JSON.stringify(tc.args)}`).join('\n\n')
 }
 
-export function formatToolResults(
-  toolCalls: Array<{ name: string; result: unknown }>,
-): string {
+export function formatToolResults(toolCalls: Array<{ name: string; result: unknown }>): string {
   if (toolCalls.length === 0) return '(no tool results)'
   return toolCalls
     .map(
-      (tc) =>
-        `Tool: ${tc.name}\nResult: ${wrapContent('tool-result', JSON.stringify(tc.result))}`,
+      (tc) => `Tool: ${tc.name}\nResult: ${wrapContent('tool-result', JSON.stringify(tc.result))}`,
     )
     .join('\n\n')
 }
 
-export function formatKnowledge(
-  knowledge: Array<{ content: string }> | undefined,
-): string {
+export function formatKnowledge(knowledge: Array<{ content: string }> | undefined): string {
   if (!knowledge || knowledge.length === 0) return '(no knowledge provided)'
   return knowledge.map((k) => `- ${k.content}`).join('\n')
 }

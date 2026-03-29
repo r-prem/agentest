@@ -44,15 +44,11 @@ describe('defineConfig', () => {
   })
 
   it('rejects invalid endpoint', () => {
-    expect(() =>
-      defineConfig({ agent: { name: 'test', endpoint: 'not-a-url' } }),
-    ).toThrow()
+    expect(() => defineConfig({ agent: { name: 'test', endpoint: 'not-a-url' } })).toThrow()
   })
 
   it('rejects negative conversationsPerScenario', () => {
-    expect(() =>
-      defineConfig({ agent: validAgent, conversationsPerScenario: -1 }),
-    ).toThrow()
+    expect(() => defineConfig({ agent: validAgent, conversationsPerScenario: -1 })).toThrow()
   })
 
   it('interpolates env vars in headers', () => {

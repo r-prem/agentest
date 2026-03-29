@@ -1,5 +1,10 @@
 import type { Scenario } from '../../scenario/types.js'
-import type { ScenarioResult, RunResult, ComparisonScenarioResult, ComparisonRunResult } from '../runner.js'
+import type {
+  ScenarioResult,
+  RunResult,
+  ComparisonScenarioResult,
+  ComparisonRunResult,
+} from '../runner.js'
 import type { Reporter, ProgressEvent } from './types.js'
 import type { TurnRecord } from '../../simulator/simulator.js'
 import type { ConversationEvaluation } from '../../evaluator/evaluator.js'
@@ -33,7 +38,9 @@ export class ConsoleReporter implements Reporter {
   onRunStart(scenarios: Scenario[], agents?: string[]): void {
     console.log()
     if (agents && agents.length > 1) {
-      console.log(`${BOLD}Agentest${RESET} ${DIM}comparing ${agents.length} agents across ${scenarios.length} scenario(s)${RESET}`)
+      console.log(
+        `${BOLD}Agentest${RESET} ${DIM}comparing ${agents.length} agents across ${scenarios.length} scenario(s)${RESET}`,
+      )
       console.log(`${DIM}Agents: ${agents.join(', ')}${RESET}`)
     } else {
       console.log(`${BOLD}Agentest${RESET} ${DIM}running ${scenarios.length} scenario(s)${RESET}`)
@@ -165,9 +172,8 @@ export class ConsoleReporter implements Reporter {
         const avgScores = computeTurnAverages(evaluation.turnEvaluations)
         for (const [metric, avg] of Object.entries(avgScores)) {
           const threshold = this.thresholds[metric]
-          const color = threshold != null && avg < threshold
-            ? RED
-            : avg >= 4 ? GREEN : avg >= 3 ? YELLOW : RED
+          const color =
+            threshold != null && avg < threshold ? RED : avg >= 4 ? GREEN : avg >= 3 ? YELLOW : RED
           parts.push(`${metric}: ${color}${avg.toFixed(1)}${RESET}`)
         }
       }
@@ -204,7 +210,9 @@ export class ConsoleReporter implements Reporter {
       if (failures.length > 0) {
         console.log(`${indent}${RED}Threshold failures:${RESET}`)
         for (const f of failures) {
-          console.log(`${indent}  ${RED}${f.metric}${RESET}: avg ${RED}${f.avg.toFixed(1)}${RESET} < threshold ${f.threshold}`)
+          console.log(
+            `${indent}  ${RED}${f.metric}${RESET}: avg ${RED}${f.avg.toFixed(1)}${RESET} < threshold ${f.threshold}`,
+          )
         }
       }
     }

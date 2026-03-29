@@ -27,15 +27,19 @@ export class SimulatedUser {
       system: this.systemPrompt,
       messages:
         conversationHistory.length === 0
-          ? [{ role: 'user' as const, content: 'Begin the conversation. Send your first message to the agent.' }]
+          ? [
+              {
+                role: 'user' as const,
+                content: 'Begin the conversation. Send your first message to the agent.',
+              },
+            ]
           : conversationHistory.map((m) => ({
               role: m.role,
               content: m.content,
             })),
     })
 
-    const shouldStop =
-      result.object.shouldStop || result.object.message.includes(STOP_TOKEN)
+    const shouldStop = result.object.shouldStop || result.object.message.includes(STOP_TOKEN)
     const message = result.object.message.replace(STOP_TOKEN, '').trim()
 
     return { message, shouldStop }
@@ -46,9 +50,7 @@ const simulatedUserResponseSchema = z.object({
   message: z.string().describe('The next message to send to the agent'),
   shouldStop: z
     .boolean()
-    .describe(
-      'Whether the conversation goal has been achieved and the conversation should end',
-    ),
+    .describe('Whether the conversation goal has been achieved and the conversation should end'),
 })
 
 function buildSystemPrompt(scenario: ScenarioOptions): string {
@@ -60,9 +62,10 @@ function buildSystemPrompt(scenario: ScenarioOptions): string {
 }
 
 function renderTemplate(template: string, scenario: ScenarioOptions): string {
-  const knowledgeStr = scenario.knowledge && scenario.knowledge.length > 0
-    ? scenario.knowledge.map((k: KnowledgeItem) => `- ${k.content}`).join('\n')
-    : ''
+  const knowledgeStr =
+    scenario.knowledge && scenario.knowledge.length > 0
+      ? scenario.knowledge.map((k: KnowledgeItem) => `- ${k.content}`).join('\n')
+      : ''
 
   return template
     .replaceAll('{{profile}}', scenario.profile)

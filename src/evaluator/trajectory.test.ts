@@ -10,30 +10,24 @@ const matcher = new TrajectoryMatcher()
 
 describe('TrajectoryMatcher — strict', () => {
   it('passes when exact tools in exact order', () => {
-    const result = matcher.match(
-      [tc('check_availability'), tc('create_booking')],
-      {
-        matchMode: 'strict',
-        expected: [
-          { name: 'check_availability', argMatchMode: 'ignore' },
-          { name: 'create_booking', argMatchMode: 'ignore' },
-        ],
-      },
-    )
+    const result = matcher.match([tc('check_availability'), tc('create_booking')], {
+      matchMode: 'strict',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'create_booking', argMatchMode: 'ignore' },
+      ],
+    })
     expect(result.matched).toBe(true)
   })
 
   it('fails on wrong order', () => {
-    const result = matcher.match(
-      [tc('create_booking'), tc('check_availability')],
-      {
-        matchMode: 'strict',
-        expected: [
-          { name: 'check_availability', argMatchMode: 'ignore' },
-          { name: 'create_booking', argMatchMode: 'ignore' },
-        ],
-      },
-    )
+    const result = matcher.match([tc('create_booking'), tc('check_availability')], {
+      matchMode: 'strict',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'create_booking', argMatchMode: 'ignore' },
+      ],
+    })
     expect(result.matched).toBe(false)
     expect(result.orderingIssues.length).toBeGreaterThan(0)
   })
@@ -68,16 +62,13 @@ describe('TrajectoryMatcher — strict', () => {
 
 describe('TrajectoryMatcher — unordered', () => {
   it('passes regardless of order', () => {
-    const result = matcher.match(
-      [tc('create_booking'), tc('check_availability')],
-      {
-        matchMode: 'unordered',
-        expected: [
-          { name: 'check_availability', argMatchMode: 'ignore' },
-          { name: 'create_booking', argMatchMode: 'ignore' },
-        ],
-      },
-    )
+    const result = matcher.match([tc('create_booking'), tc('check_availability')], {
+      matchMode: 'unordered',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'create_booking', argMatchMode: 'ignore' },
+      ],
+    })
     expect(result.matched).toBe(true)
   })
 
@@ -126,16 +117,13 @@ describe('TrajectoryMatcher — contains', () => {
   })
 
   it('fails when expected tool is missing', () => {
-    const result = matcher.match(
-      [tc('check_availability'), tc('send_email')],
-      {
-        matchMode: 'contains',
-        expected: [
-          { name: 'check_availability', argMatchMode: 'ignore' },
-          { name: 'create_booking', argMatchMode: 'ignore' },
-        ],
-      },
-    )
+    const result = matcher.match([tc('check_availability'), tc('send_email')], {
+      matchMode: 'contains',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'create_booking', argMatchMode: 'ignore' },
+      ],
+    })
     expect(result.matched).toBe(false)
     expect(result.missingCalls).toContain('create_booking')
   })
@@ -154,16 +142,13 @@ describe('TrajectoryMatcher — within', () => {
   })
 
   it('fails when actual call is not in allowed set', () => {
-    const result = matcher.match(
-      [tc('check_availability'), tc('send_email')],
-      {
-        matchMode: 'within',
-        expected: [
-          { name: 'check_availability', argMatchMode: 'ignore' },
-          { name: 'create_booking', argMatchMode: 'ignore' },
-        ],
-      },
-    )
+    const result = matcher.match([tc('check_availability'), tc('send_email')], {
+      matchMode: 'within',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'create_booking', argMatchMode: 'ignore' },
+      ],
+    })
     expect(result.matched).toBe(false)
     expect(result.extraCalls).toContain('send_email')
   })
@@ -188,19 +173,16 @@ describe('TrajectoryMatcher — arg matching', () => {
   })
 
   it('exact: fails on different args', () => {
-    const result = matcher.match(
-      [tc('check_availability', { date: '2026-04-01' })],
-      {
-        matchMode: 'strict',
-        expected: [
-          {
-            name: 'check_availability',
-            args: { date: '2026-04-02' },
-            argMatchMode: 'exact',
-          },
-        ],
-      },
-    )
+    const result = matcher.match([tc('check_availability', { date: '2026-04-01' })], {
+      matchMode: 'strict',
+      expected: [
+        {
+          name: 'check_availability',
+          args: { date: '2026-04-02' },
+          argMatchMode: 'exact',
+        },
+      ],
+    })
     expect(result.matched).toBe(false)
   })
 
@@ -222,57 +204,45 @@ describe('TrajectoryMatcher — arg matching', () => {
   })
 
   it('partial: fails when expected key has wrong value', () => {
-    const result = matcher.match(
-      [tc('check_availability', { date: '2026-04-02' })],
-      {
-        matchMode: 'strict',
-        expected: [
-          {
-            name: 'check_availability',
-            args: { date: '2026-04-01' },
-            argMatchMode: 'partial',
-          },
-        ],
-      },
-    )
+    const result = matcher.match([tc('check_availability', { date: '2026-04-02' })], {
+      matchMode: 'strict',
+      expected: [
+        {
+          name: 'check_availability',
+          args: { date: '2026-04-01' },
+          argMatchMode: 'partial',
+        },
+      ],
+    })
     expect(result.matched).toBe(false)
   })
 
   it('ignore: passes regardless of args', () => {
-    const result = matcher.match(
-      [tc('check_availability', { anything: 'goes' })],
-      {
-        matchMode: 'strict',
-        expected: [{ name: 'check_availability', argMatchMode: 'ignore' }],
-      },
-    )
+    const result = matcher.match([tc('check_availability', { anything: 'goes' })], {
+      matchMode: 'strict',
+      expected: [{ name: 'check_availability', argMatchMode: 'ignore' }],
+    })
     expect(result.matched).toBe(true)
   })
 
   it('defaults to ignore when argMatchMode not specified', () => {
-    const result = matcher.match(
-      [tc('check_availability', { anything: 'goes' })],
-      {
-        matchMode: 'strict',
-        expected: [{ name: 'check_availability' }],
-      },
-    )
+    const result = matcher.match([tc('check_availability', { anything: 'goes' })], {
+      matchMode: 'strict',
+      expected: [{ name: 'check_availability' }],
+    })
     expect(result.matched).toBe(true)
   })
 })
 
 describe('TrajectoryMatcher — duplicate tool calls', () => {
   it('contains: matches duplicate expected calls independently', () => {
-    const result = matcher.match(
-      [tc('check_availability'), tc('check_availability')],
-      {
-        matchMode: 'contains',
-        expected: [
-          { name: 'check_availability', argMatchMode: 'ignore' },
-          { name: 'check_availability', argMatchMode: 'ignore' },
-        ],
-      },
-    )
+    const result = matcher.match([tc('check_availability'), tc('check_availability')], {
+      matchMode: 'contains',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'check_availability', argMatchMode: 'ignore' },
+      ],
+    })
     expect(result.matched).toBe(true)
   })
 

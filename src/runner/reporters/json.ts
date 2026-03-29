@@ -1,6 +1,11 @@
 import { writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
-import type { RunResult, ScenarioResult, ComparisonScenarioResult, ComparisonRunResult } from '../runner.js'
+import type {
+  RunResult,
+  ScenarioResult,
+  ComparisonScenarioResult,
+  ComparisonRunResult,
+} from '../runner.js'
 import type { Reporter } from './types.js'
 
 export interface JsonReporterOptions {

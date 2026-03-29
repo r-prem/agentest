@@ -1,16 +1,17 @@
 import { appendFileSync } from 'node:fs'
-import type { ScenarioResult, RunResult, ComparisonScenarioResult, ComparisonRunResult } from '../runner.js'
+import type {
+  ScenarioResult,
+  RunResult,
+  ComparisonScenarioResult,
+  ComparisonRunResult,
+} from '../runner.js'
 import type { Reporter } from './types.js'
 import type { UniqueError } from '../../evaluator/errorDetection.js'
 import { computeMetricAverages } from '../../evaluator/scoring.js'
 
 /** Escape a string for safe use inside a Markdown table cell. */
 function escapeMarkdown(text: string): string {
-  return text
-    .replace(/\|/g, '\\|')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/`/g, '\\`')
+  return text.replace(/\|/g, '\\|').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/`/g, '\\`')
 }
 
 const SEVERITY_ICONS: Record<string, string> = {
@@ -47,7 +48,11 @@ export class GitHubActionsReporter implements Reporter {
   onComparisonRunEnd(result: ComparisonRunResult): void {
     for (const [agentName, agentResult] of result.perAgent) {
       if (!agentResult.passed) {
-        this.annotate('error', `Agent "${agentName}" failed`, `${agentResult.failedScenarios}/${agentResult.totalScenarios} scenarios failed`)
+        this.annotate(
+          'error',
+          `Agent "${agentName}" failed`,
+          `${agentResult.failedScenarios}/${agentResult.totalScenarios} scenarios failed`,
+        )
       }
     }
     this.writeSummary(this.buildComparisonSummary(result))
@@ -59,12 +64,20 @@ export class GitHubActionsReporter implements Reporter {
     const prefix = agentLabel ? `[${agentLabel}] ` : ''
 
     if (!result.passed) {
-      this.annotate('error', `${prefix}Scenario failed: ${result.scenario.name}`, this.getFailureReason(result))
+      this.annotate(
+        'error',
+        `${prefix}Scenario failed: ${result.scenario.name}`,
+        this.getFailureReason(result),
+      )
     }
 
     for (const error of result.errors) {
       const level = this.severityToLevel(error.severity)
-      this.annotate(level, `${prefix}${error.label}`, `${error.explanation} (${error.occurrences.length} occurrence(s))`)
+      this.annotate(
+        level,
+        `${prefix}${error.label}`,
+        `${error.explanation} (${error.occurrences.length} occurrence(s))`,
+      )
     }
   }
 
@@ -72,7 +85,11 @@ export class GitHubActionsReporter implements Reporter {
     for (const sr of result.scenarioResults) {
       const violations = this.computeThresholdViolations(sr)
       for (const v of violations) {
-        this.annotate('warning', `Threshold violation: ${v.metric}`, `Average ${v.avg.toFixed(2)} < threshold ${v.threshold} in "${sr.scenario.name}"`)
+        this.annotate(
+          'warning',
+          `Threshold violation: ${v.metric}`,
+          `Average ${v.avg.toFixed(2)} < threshold ${v.threshold} in "${sr.scenario.name}"`,
+        )
       }
     }
   }
@@ -119,9 +136,8 @@ export class GitHubActionsReporter implements Reporter {
       const status = sr.passed ? '✅ Pass' : '❌ Fail'
       const convCount = sr.simulation.conversations.length
       const erroredCount = sr.simulation.conversations.filter((c) => c.error).length
-      const convStatus = erroredCount > 0
-        ? `${convCount - erroredCount}/${convCount}`
-        : `${convCount}/${convCount}`
+      const convStatus =
+        erroredCount > 0 ? `${convCount - erroredCount}/${convCount}` : `${convCount}/${convCount}`
 
       const avgScores = computeMetricAverages(sr.evaluations.values())
       const scoreCells = metricNames.map((m) => {
@@ -129,7 +145,9 @@ export class GitHubActionsReporter implements Reporter {
         return val != null ? val.toFixed(1) : '—'
       })
 
-      lines.push(`| ${escapeMarkdown(sr.scenario.name)} | ${status} | ${convStatus} | ${scoreCells.join(' | ')} |`)
+      lines.push(
+        `| ${escapeMarkdown(sr.scenario.name)} | ${status} | ${convStatus} | ${scoreCells.join(' | ')} |`,
+      )
     }
 
     // Errors
@@ -140,7 +158,9 @@ export class GitHubActionsReporter implements Reporter {
       lines.push('| --- | --- | --- |')
       for (const err of allErrors) {
         const icon = SEVERITY_ICONS[err.severity] ?? '⚪'
-        lines.push(`| ${icon} ${err.severity} | ${escapeMarkdown(err.label)} | ${err.occurrences.length} |`)
+        lines.push(
+          `| ${icon} ${err.severity} | ${escapeMarkdown(err.label)} | ${err.occurrences.length} |`,
+        )
       }
     }
 
@@ -153,7 +173,9 @@ export class GitHubActionsReporter implements Reporter {
       lines.push('| Scenario | Metric | Average | Threshold |')
       lines.push('| --- | --- | --- | --- |')
       for (const v of allViolations) {
-        lines.push(`| ${escapeMarkdown(v.scenario)} | ${escapeMarkdown(v.metric)} | ${v.avg.toFixed(2)} | ${v.threshold} |`)
+        lines.push(
+          `| ${escapeMarkdown(v.scenario)} | ${escapeMarkdown(v.metric)} | ${v.avg.toFixed(2)} | ${v.threshold} |`,
+        )
       }
     }
 
@@ -163,10 +185,7 @@ export class GitHubActionsReporter implements Reporter {
 
   private buildComparisonSummary(result: ComparisonRunResult): string {
     const icon = result.passed ? '✅' : '❌'
-    const lines: string[] = [
-      `## Agentest Comparison Results ${icon}`,
-      '',
-    ]
+    const lines: string[] = [`## Agentest Comparison Results ${icon}`, '']
 
     // Collect all metric names across all agents
     const metricNames = new Set<string>()
@@ -204,7 +223,9 @@ export class GitHubActionsReporter implements Reporter {
         return '—'
       })
 
-      lines.push(`| ${escapeMarkdown(agentName)} | ${agentResult.passedScenarios}/${agentResult.totalScenarios} ${statusIcon} | ${scoreCells.join(' | ')} |`)
+      lines.push(
+        `| ${escapeMarkdown(agentName)} | ${agentResult.passedScenarios}/${agentResult.totalScenarios} ${statusIcon} | ${scoreCells.join(' | ')} |`,
+      )
     }
 
     // Per-scenario breakdown
@@ -218,7 +239,7 @@ export class GitHubActionsReporter implements Reporter {
       for (const { agentName, scenarioResult } of sc.agentResults) {
         const status = scenarioResult.passed ? '✅' : '❌'
         const avgs = computeMetricAverages(scenarioResult.evaluations.values())
-        const cells = metrics.map((m) => avgs[m] != null ? avgs[m].toFixed(1) : '—')
+        const cells = metrics.map((m) => (avgs[m] != null ? avgs[m].toFixed(1) : '—'))
         lines.push(`| ${escapeMarkdown(agentName)} | ${status} | ${cells.join(' | ')} |`)
       }
       lines.push('')
@@ -269,7 +290,9 @@ export class GitHubActionsReporter implements Reporter {
     }
 
     if (result.errors.length > 0) {
-      const critical = result.errors.filter((e) => e.severity === 'critical' || e.severity === 'high')
+      const critical = result.errors.filter(
+        (e) => e.severity === 'critical' || e.severity === 'high',
+      )
       if (critical.length > 0) {
         reasons.push(`${critical.length} critical/high error(s)`)
       }

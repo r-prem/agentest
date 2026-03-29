@@ -74,8 +74,7 @@ export class ErrorDetection {
 
     for (const turn of turnEvaluations) {
       for (const [metricName, result] of Object.entries(turn.metrics)) {
-        const isFailure =
-          typeof result.value === 'string' && result.value !== 'no failure'
+        const isFailure = typeof result.value === 'string' && result.value !== 'no failure'
 
         if (isFailure) {
           failures.push({

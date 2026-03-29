@@ -97,24 +97,16 @@ describe('MockResolver', () => {
   })
 
   it('throws AgentestError for unmocked tool when behavior is error', async () => {
-    const resolver = new MockResolver(
-      {},
-      'error',
-      'test-scenario',
-      'conv-1',
-    )
+    const resolver = new MockResolver({}, 'error', 'test-scenario', 'conv-1')
 
     await expect(resolver.resolve('unknown_tool', {}, 0)).rejects.toThrow(AgentestError)
-    await expect(resolver.resolve('unknown_tool', {}, 0)).rejects.toThrow('unmocked tool "unknown_tool"')
+    await expect(resolver.resolve('unknown_tool', {}, 0)).rejects.toThrow(
+      'unmocked tool "unknown_tool"',
+    )
   })
 
   it('returns undefined for unmocked tool when behavior is passthrough', async () => {
-    const resolver = new MockResolver(
-      {},
-      'passthrough',
-      'test-scenario',
-      'conv-1',
-    )
+    const resolver = new MockResolver({}, 'passthrough', 'test-scenario', 'conv-1')
 
     const { result, mocked } = await resolver.resolve('unknown_tool', {}, 0)
     expect(mocked).toBe(false)
@@ -123,12 +115,7 @@ describe('MockResolver', () => {
 
   it('resets sequence mocks and call counts', async () => {
     const seqMock = sequence([10, 20])
-    const resolver = new MockResolver(
-      { counter: seqMock },
-      'error',
-      'test-scenario',
-      'conv-1',
-    )
+    const resolver = new MockResolver({ counter: seqMock }, 'error', 'test-scenario', 'conv-1')
 
     const r1 = await resolver.resolve('counter', {}, 0)
     expect(r1.result).toBe(10)

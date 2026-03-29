@@ -9,7 +9,9 @@ function interpolateEnvVars(headers: Record<string, string>): Record<string, str
     result[key] = value.replace(/\$\{(\w+)\}/g, (_, envVar: string) => {
       const envValue = process.env[envVar]
       if (envValue === undefined) {
-        throw new Error(`Environment variable "${envVar}" is not set (referenced in header "${key}")`)
+        throw new Error(
+          `Environment variable "${envVar}" is not set (referenced in header "${key}")`,
+        )
       }
       return envValue
     })

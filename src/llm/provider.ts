@@ -102,17 +102,26 @@ export async function createProvider(
   }
 }
 
-async function createAnthropicProvider(modelId: string, options?: ProviderOptions): Promise<LLMProvider> {
+async function createAnthropicProvider(
+  modelId: string,
+  options?: ProviderOptions,
+): Promise<LLMProvider> {
   const { createAnthropicProvider: create } = await import('./anthropic.js')
   return create(modelId, options)
 }
 
-async function createOpenAIProvider(modelId: string, options?: ProviderOptions): Promise<LLMProvider> {
+async function createOpenAIProvider(
+  modelId: string,
+  options?: ProviderOptions,
+): Promise<LLMProvider> {
   const { createOpenAIProvider: create } = await import('./openai.js')
   return create(modelId, options)
 }
 
-async function createGoogleProvider(modelId: string, options?: ProviderOptions): Promise<LLMProvider> {
+async function createGoogleProvider(
+  modelId: string,
+  options?: ProviderOptions,
+): Promise<LLMProvider> {
   const { createGoogleProvider: create } = await import('./google.js')
   return create(modelId, options)
 }

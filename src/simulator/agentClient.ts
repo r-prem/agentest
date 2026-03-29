@@ -26,7 +26,8 @@ const MAX_ERROR_BODY_LENGTH = 500
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000
 const MAX_RESPONSE_BODY_BYTES = 10 * 1024 * 1024 // 10 MB
 const ALLOWED_PROTOCOLS = ['http:', 'https:']
-const SENSITIVE_PATTERN = /(?:Bearer\s+|api[_-]?key[:\s=]+|authorization[:\s=]+|token[:\s=]+|secret[:\s=]+|x-api-key[:\s=]+)\S+/gi
+const SENSITIVE_PATTERN =
+  /(?:Bearer\s+|api[_-]?key[:\s=]+|authorization[:\s=]+|token[:\s=]+|secret[:\s=]+|x-api-key[:\s=]+)\S+/gi
 
 const BLOCKED_HOSTS = new Set([
   '169.254.169.254',
@@ -53,11 +54,11 @@ function isPrivateHost(hostname: string): boolean {
   if (
     hostname === '::1' ||
     hostname === '::' ||
-    hostname.startsWith('fe80:') ||        // link-local
-    hostname.startsWith('fc00:') ||        // unique local
-    hostname.startsWith('fd') ||           // unique local (fd00::/8)
-    hostname.startsWith('::ffff:127.') ||  // IPv4-mapped loopback
-    hostname.startsWith('::ffff:10.') ||   // IPv4-mapped 10.x
+    hostname.startsWith('fe80:') || // link-local
+    hostname.startsWith('fc00:') || // unique local
+    hostname.startsWith('fd') || // unique local (fd00::/8)
+    hostname.startsWith('::ffff:127.') || // IPv4-mapped loopback
+    hostname.startsWith('::ffff:10.') || // IPv4-mapped 10.x
     hostname.startsWith('::ffff:192.168.') // IPv4-mapped 192.168.x
   ) {
     return true
@@ -113,9 +114,7 @@ export class AgentClient {
   private validateEndpoint(endpoint: string): void {
     const url = new URL(endpoint)
     if (!ALLOWED_PROTOCOLS.includes(url.protocol)) {
-      throw new Error(
-        `Agent endpoint must use http: or https: protocol, got "${url.protocol}"`,
-      )
+      throw new Error(`Agent endpoint must use http: or https: protocol, got "${url.protocol}"`)
     }
     if (!process.env.AGENTEST_ALLOW_PRIVATE_ENDPOINTS) {
       // Strip brackets from IPv6 hostnames (URL parser wraps them: [::1] → ::1)
@@ -123,7 +122,7 @@ export class AgentClient {
       if (isPrivateHost(hostname)) {
         throw new Error(
           `Agent endpoint "${hostname}" resolves to a private/internal address. ` +
-          `Set AGENTEST_ALLOW_PRIVATE_ENDPOINTS=1 to override.`,
+            `Set AGENTEST_ALLOW_PRIVATE_ENDPOINTS=1 to override.`,
         )
       }
     }
@@ -141,9 +140,7 @@ export class AgentClient {
     const message = result as ChatMessage
 
     if (!message || typeof message.role !== 'string') {
-      throw new Error(
-        `Custom handler returned an invalid message: missing or invalid "role" field`,
-      )
+      throw new Error(`Custom handler returned an invalid message: missing or invalid "role" field`)
     }
 
     // Normalize null/undefined content to empty string
@@ -244,7 +241,10 @@ export class AgentClient {
 
     let role: ChatMessage['role'] = 'assistant'
     let content = ''
-    const toolCallMap = new Map<number, { id: string; type: 'function'; function: { name: string; arguments: string } }>()
+    const toolCallMap = new Map<
+      number,
+      { id: string; type: 'function'; function: { name: string; arguments: string } }
+    >()
 
     for (const line of lines) {
       const trimmed = line.trim()
@@ -305,9 +305,7 @@ export class AgentClient {
       }
     }
 
-    const toolCalls = [...toolCallMap.values()].filter(
-      (tc) => tc.id && tc.function.name,
-    )
+    const toolCalls = [...toolCallMap.values()].filter((tc) => tc.id && tc.function.name)
 
     const message: ChatMessage = {
       role,
@@ -339,9 +337,7 @@ export class AgentClient {
       totalBytes += value.byteLength
       if (totalBytes > MAX_RESPONSE_BODY_BYTES) {
         reader.cancel()
-        throw new Error(
-          `Agent endpoint response exceeded ${MAX_RESPONSE_BODY_BYTES} bytes limit`,
-        )
+        throw new Error(`Agent endpoint response exceeded ${MAX_RESPONSE_BODY_BYTES} bytes limit`)
       }
 
       chunks.push(decoder.decode(value, { stream: true }))

@@ -70,24 +70,28 @@ export function defineSimSuite(
     // we use a wrapper that discovers scenarios first, then creates the suite.
     // This is handled by the alternative `defineSimSuite` approach below.
 
-    it('runs all scenarios', async () => {
-      if (!allScenarios || allScenarios.length === 0) {
-        throw new Error('No scenarios found. Check your include/exclude patterns.')
-      }
+    it(
+      'runs all scenarios',
+      async () => {
+        if (!allScenarios || allScenarios.length === 0) {
+          throw new Error('No scenarios found. Check your include/exclude patterns.')
+        }
 
-      const result = await runner.run(allScenarios)
+        const result = await runner.run(allScenarios)
 
-      if (!result.passed) {
-        const failureDetails = result.scenarioResults
-          .filter((sr) => !sr.passed)
-          .map((sr) => formatScenarioFailure(sr))
-          .join('\n\n')
+        if (!result.passed) {
+          const failureDetails = result.scenarioResults
+            .filter((sr) => !sr.passed)
+            .map((sr) => formatScenarioFailure(sr))
+            .join('\n\n')
 
-        expect.fail(
-          `${result.failedScenarios}/${result.totalScenarios} scenarios failed\n\n${failureDetails}`,
-        )
-      }
-    }, timeout)
+          expect.fail(
+            `${result.failedScenarios}/${result.totalScenarios} scenarios failed\n\n${failureDetails}`,
+          )
+        }
+      },
+      timeout,
+    )
   })
 }
 
@@ -118,15 +122,11 @@ export async function runScenario(
 
   // Find the matching scenario
   const allScenarios = discoveries.flatMap((d) => d.scenarios)
-  const match = allScenarios.find((s) =>
-    s.name.toLowerCase() === scenarioName.toLowerCase(),
-  )
+  const match = allScenarios.find((s) => s.name.toLowerCase() === scenarioName.toLowerCase())
 
   if (!match) {
     const available = allScenarios.map((s) => s.name).join(', ')
-    throw new Error(
-      `Scenario "${scenarioName}" not found. Available: ${available}`,
-    )
+    throw new Error(`Scenario "${scenarioName}" not found. Available: ${available}`)
   }
 
   // Run with a single-scenario discovery
@@ -151,7 +151,8 @@ function formatScenarioFailure(sr: ScenarioResult): string {
       const details: string[] = []
       if (traj.missingCalls.length > 0) details.push(`missing: ${traj.missingCalls.join(', ')}`)
       if (traj.extraCalls.length > 0) details.push(`extra: ${traj.extraCalls.join(', ')}`)
-      if (traj.forbiddenCalls.length > 0) details.push(`forbidden: ${traj.forbiddenCalls.join(', ')}`)
+      if (traj.forbiddenCalls.length > 0)
+        details.push(`forbidden: ${traj.forbiddenCalls.join(', ')}`)
       lines.push(`  ${convId}: trajectory failed — ${details.join('; ')}`)
     }
   }

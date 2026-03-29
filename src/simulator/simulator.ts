@@ -48,8 +48,7 @@ export class Simulator {
 
   async runScenario(scenario: Scenario): Promise<SimulationResult> {
     const conversationCount =
-      scenario.options.conversationsPerScenario ??
-      this.config.conversationsPerScenario
+      scenario.options.conversationsPerScenario ?? this.config.conversationsPerScenario
     const conversations: ConversationRecord[] = []
 
     for (let i = 0; i < conversationCount; i++) {
@@ -65,8 +64,7 @@ export class Simulator {
     scenario: Scenario,
     conversationId: string,
   ): Promise<ConversationRecord> {
-    const maxTurns =
-      scenario.options.maxTurns ?? this.config.maxTurns
+    const maxTurns = scenario.options.maxTurns ?? this.config.maxTurns
     const simulatedUser = new SimulatedUser(this.llmProvider, scenario.options)
     const mockResolver = new MockResolver(
       scenario.options.mocks?.tools as Record<string, ToolMockFn> | undefined,

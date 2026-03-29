@@ -1,5 +1,10 @@
 import type { Scenario } from '../../scenario/types.js'
-import type { ScenarioResult, RunResult, ComparisonScenarioResult, ComparisonRunResult } from '../runner.js'
+import type {
+  ScenarioResult,
+  RunResult,
+  ComparisonScenarioResult,
+  ComparisonRunResult,
+} from '../runner.js'
 
 export interface ProgressEvent {
   scenario: string

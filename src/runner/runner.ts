@@ -1,7 +1,12 @@
 import pLimit from 'p-limit'
 import type { AgentestConfig } from '../config/schema.js'
 import type { Scenario } from '../scenario/types.js'
-import { Simulator, type SimulationResult, type ConversationRecord, type SimulatorProgressCallback } from '../simulator/simulator.js'
+import {
+  Simulator,
+  type SimulationResult,
+  type ConversationRecord,
+  type SimulatorProgressCallback,
+} from '../simulator/simulator.js'
 import { Evaluator, type ConversationEvaluation, type MetricName } from '../evaluator/evaluator.js'
 import { TrajectoryMatcher, type TrajectoryResult } from '../evaluator/trajectory.js'
 import { ErrorDetection, type UniqueError, type FailureTurn } from '../evaluator/errorDetection.js'
@@ -57,7 +62,11 @@ export class Runner {
   }
 
   private async createInfrastructure() {
-    const llm = await createProvider(this.config.provider, this.config.model, this.config.providerOptions)
+    const llm = await createProvider(
+      this.config.provider,
+      this.config.model,
+      this.config.providerOptions,
+    )
     const evaluator = new Evaluator(
       llm,
       this.config.metrics,
@@ -135,11 +144,17 @@ export class Runner {
       if (primaryAgent.type === 'custom') {
         throw new Error(
           `Compare entry "${entry.name}" is an override but the primary agent uses a custom handler. ` +
-          `Use type: 'custom' with a handler for this compare entry instead.`,
+            `Use type: 'custom' with a handler for this compare entry instead.`,
         )
       }
 
-      const override = entry as { name: string; endpoint?: string; headers?: Record<string, string>; body?: Record<string, unknown>; streaming?: boolean }
+      const override = entry as {
+        name: string
+        endpoint?: string
+        headers?: Record<string, string>
+        body?: Record<string, unknown>
+        streaming?: boolean
+      }
       const mergedAgent = {
         ...primaryAgent,
         name: override.name,
@@ -195,7 +210,12 @@ export class Runner {
           this.limit(async () => {
             const simulator = simulators.get(agentName)!
             const result = await this.runScenario(
-              scenario, simulator, evaluator, trajectoryMatcher, errorDetection, agentName,
+              scenario,
+              simulator,
+              evaluator,
+              trajectoryMatcher,
+              errorDetection,
+              agentName,
             )
             return { agentName, scenarioResult: result } as ComparisonAgentResult
           }),
@@ -278,10 +298,7 @@ export class Runner {
         phase: 'evaluating',
         detail: `${label}${conv.conversationId}`,
       })
-      const evaluation = await evaluator.evaluateConversation(
-        conv.turns,
-        scenario.options,
-      )
+      const evaluation = await evaluator.evaluateConversation(conv.turns, scenario.options)
       evaluations.set(conv.conversationId, evaluation)
     }
 
@@ -296,10 +313,7 @@ export class Runner {
         if (conv.error) continue
 
         const allToolCalls = conv.turns.flatMap((t) => t.toolCalls)
-        const result = trajectoryMatcher.match(
-          allToolCalls,
-          scenario.options.assertions.toolCalls,
-        )
+        const result = trajectoryMatcher.match(allToolCalls, scenario.options.assertions.toolCalls)
         trajectoryResults.set(conv.conversationId, result)
       }
     }
@@ -326,12 +340,7 @@ export class Runner {
     }
 
     // 5. Determine pass/fail
-    const passed = this.determinePassFail(
-      simulation,
-      evaluations,
-      trajectoryResults,
-      errors,
-    )
+    const passed = this.determinePassFail(simulation, evaluations, trajectoryResults, errors)
 
     const scenarioResult: ScenarioResult = {
       scenario,

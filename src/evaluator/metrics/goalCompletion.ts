@@ -7,9 +7,7 @@ const schema = z.object({
   reason: z.string(),
 })
 
-function formatFullConversation(
-  turns: ConversationScoreInput['turns'],
-): string {
+function formatFullConversation(turns: ConversationScoreInput['turns']): string {
   return turns
     .map(
       (t, i) =>

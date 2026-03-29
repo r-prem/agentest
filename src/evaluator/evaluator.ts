@@ -101,9 +101,7 @@ export class Evaluator {
   ): Promise<ConversationEvaluation> {
     // Evaluate all turns in parallel
     const turnEvaluations = await Promise.all(
-      turns.map((turn, i) =>
-        this.evaluateTurn(turn, turns.slice(0, i), scenario),
-      ),
+      turns.map((turn, i) => this.evaluateTurn(turn, turns.slice(0, i), scenario)),
     )
 
     // Goal completion runs once per conversation
@@ -119,9 +117,7 @@ export class Evaluator {
           toolCalls: t.toolCalls,
         })),
       }
-      goalCompletion = await this.limit(() =>
-        this.goalCompletionMetric!.score(input),
-      )
+      goalCompletion = await this.limit(() => this.goalCompletionMetric!.score(input))
     }
 
     return { turnEvaluations, goalCompletion }

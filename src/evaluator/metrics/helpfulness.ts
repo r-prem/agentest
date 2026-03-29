@@ -1,6 +1,13 @@
 import { z } from 'zod'
 import { QuantitativeMetric, type ScoreInput, type QuantResult } from './base.js'
-import { HELPFULNESS_PROMPT, renderPrompt, formatHistory, formatToolCalls, formatKnowledge, wrapContent } from '../prompts.js'
+import {
+  HELPFULNESS_PROMPT,
+  renderPrompt,
+  formatHistory,
+  formatToolCalls,
+  formatKnowledge,
+  wrapContent,
+} from '../prompts.js'
 
 const schema = z.object({
   score: z.number().int().min(1).max(5),
