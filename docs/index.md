@@ -11,7 +11,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/your-org/agentest
+      link: https://github.com/r-prem/agentest
   image:
     src: /logo.svg
     alt: Agentest

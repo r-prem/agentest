@@ -1,5 +1,29 @@
 import type { ConversationEvaluation } from './evaluator.js'
 
+export interface ThresholdViolation {
+  metric: string
+  avg: number
+  threshold: number
+}
+
+/**
+ * Computes which thresholds are violated given a set of evaluations.
+ */
+export function computeThresholdViolations(
+  evaluations: Iterable<ConversationEvaluation>,
+  thresholds: Record<string, number>,
+): ThresholdViolation[] {
+  const averages = computeMetricAverages(evaluations)
+  const violations: ThresholdViolation[] = []
+  for (const [metric, threshold] of Object.entries(thresholds)) {
+    const avg = averages[metric]
+    if (avg != null && avg < threshold) {
+      violations.push({ metric, avg, threshold })
+    }
+  }
+  return violations
+}
+
 /**
  * Computes average scores across turn evaluations for all numeric metrics.
  * Does NOT include goal_completion — use computeMetricAverages() for that.

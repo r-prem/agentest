@@ -85,14 +85,29 @@ const VALID_METRIC_NAMES = [
   'tool_call_behavior_failure',
 ] as const
 
-export const thresholdsSchema = z.record(z.number().min(0).max(5)).refine(
-  (rec) => Object.keys(rec).every((key) => (VALID_METRIC_NAMES as readonly string[]).includes(key)),
-  (rec) => ({
-    message: `Unknown metric name(s) in thresholds: ${Object.keys(rec)
-      .filter((k) => !(VALID_METRIC_NAMES as readonly string[]).includes(k))
-      .join(', ')}. Valid names: ${VALID_METRIC_NAMES.join(', ')}`,
-  }),
-)
+const BINARY_METRICS = new Set(['goal_completion'])
+
+export const thresholdsSchema = z
+  .record(z.number().min(0).max(5))
+  .refine(
+    (rec) =>
+      Object.keys(rec).every((key) => (VALID_METRIC_NAMES as readonly string[]).includes(key)),
+    (rec) => ({
+      message: `Unknown metric name(s) in thresholds: ${Object.keys(rec)
+        .filter((k) => !(VALID_METRIC_NAMES as readonly string[]).includes(k))
+        .join(', ')}. Valid names: ${VALID_METRIC_NAMES.join(', ')}`,
+    }),
+  )
+  .refine(
+    (rec) =>
+      Object.entries(rec).every(([key, val]) => !BINARY_METRICS.has(key) || (val >= 0 && val <= 1)),
+    (rec) => ({
+      message: `Threshold for binary metric(s) must be between 0 and 1: ${Object.entries(rec)
+        .filter(([key, val]) => BINARY_METRICS.has(key) && (val < 0 || val > 1))
+        .map(([key]) => key)
+        .join(', ')}`,
+    }),
+  )
 
 export const configSchema = z.object({
   agent: agentConfigSchema,

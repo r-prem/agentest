@@ -33,6 +33,27 @@ export type SimulatorProgressCallback = (event: {
   phase: 'user-message' | 'agent-call' | 'tool-resolution'
 }) => void
 
+function sanitizeJson(obj: unknown): Record<string, unknown> {
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return {}
+  const clean: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue
+    clean[key] = sanitizeValue(value)
+  }
+  return clean
+}
+
+function sanitizeValue(val: unknown): unknown {
+  if (val === null || typeof val !== 'object') return val
+  if (Array.isArray(val)) return val.map(sanitizeValue)
+  const clean: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(val as Record<string, unknown>)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue
+    clean[key] = sanitizeValue(value)
+  }
+  return clean
+}
+
 export class Simulator {
   private agentClient: AgentClient
   private config: AgentestConfig
@@ -190,10 +211,7 @@ export class Simulator {
     for (const tc of toolCalls) {
       let args: Record<string, unknown> = {}
       try {
-        const parsed = JSON.parse(tc.function.arguments) as Record<string, unknown>
-        // Strip prototype-polluting keys from untrusted agent input
-        const { __proto__: _, constructor: __, ...safe } = parsed
-        args = safe
+        args = sanitizeJson(JSON.parse(tc.function.arguments))
       } catch {
         console.warn(
           `[agentest] Failed to parse tool call arguments for "${tc.function.name}", defaulting to {}`,

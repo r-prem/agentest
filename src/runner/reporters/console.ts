@@ -8,7 +8,11 @@ import type {
 import type { Reporter, ProgressEvent } from './types.js'
 import type { TurnRecord } from '../../simulator/simulator.js'
 import type { ConversationEvaluation } from '../../evaluator/evaluator.js'
-import { computeTurnAverages, computeMetricAverages } from '../../evaluator/scoring.js'
+import {
+  computeTurnAverages,
+  computeMetricAverages,
+  computeThresholdViolations,
+} from '../../evaluator/scoring.js'
 
 const PASS = '\x1b[32m\u2713\x1b[0m'
 const FAIL = '\x1b[31m\u2717\x1b[0m'
@@ -293,19 +297,4 @@ export class ConsoleReporter implements Reporter {
     console.log(`    ${DIM}── end transcript ──${RESET}`)
   }
 
-  private computeThresholdFailures(
-    result: ScenarioResult,
-  ): Array<{ metric: string; avg: number; threshold: number }> {
-    const averages = computeMetricAverages(result.evaluations.values())
-    const failures: Array<{ metric: string; avg: number; threshold: number }> = []
-
-    for (const [metricName, threshold] of Object.entries(this.thresholds)) {
-      const avg = averages[metricName]
-      if (avg != null && avg < threshold) {
-        failures.push({ metric: metricName, avg, threshold })
-      }
-    }
-
-    return failures
-  }
 }

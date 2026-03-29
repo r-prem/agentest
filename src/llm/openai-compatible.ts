@@ -4,6 +4,7 @@ import { createLLMProvider, type LLMProvider } from './provider.js'
 export interface OpenAICompatibleOptions {
   baseURL: string
   apiKey?: string
+  timeoutMs?: number
 }
 
 export function createOpenAICompatibleProvider(
@@ -14,5 +15,5 @@ export function createOpenAICompatibleProvider(
     baseURL: options.baseURL,
     apiKey: options.apiKey ?? 'not-needed',
   })
-  return createLLMProvider(provider(modelId), 'openai-compatible')
+  return createLLMProvider(provider(modelId), 'openai-compatible', options.timeoutMs)
 }

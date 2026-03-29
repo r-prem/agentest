@@ -41,7 +41,12 @@ export class JsonReporter implements Reporter {
       )
     }
     await mkdir(resolvedDir, { recursive: true })
-    const filePath = path.join(resolvedDir, this.filename)
+    const filePath = path.resolve(resolvedDir, this.filename)
+    if (!filePath.startsWith(resolvedDir + path.sep)) {
+      throw new Error(
+        `JSON reporter filename "${this.filename}" resolves outside the output directory`,
+      )
+    }
     await writeFile(filePath, JSON.stringify(output, null, 2))
     console.log(`Results written to ${filePath}`)
   }

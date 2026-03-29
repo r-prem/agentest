@@ -6,5 +6,5 @@ export function createOpenAIProvider(modelId: string, options?: ProviderOptions)
     ...(options?.apiKey && { apiKey: options.apiKey }),
     ...(options?.baseURL && { baseURL: options.baseURL }),
   })
-  return createLLMProvider(provider(modelId), 'openai')
+  return createLLMProvider(provider(modelId), 'openai', options?.timeoutMs)
 }

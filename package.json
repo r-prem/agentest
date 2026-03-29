@@ -1,6 +1,6 @@
 {
   "name": "agentest",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",
   "main": "./dist/index.js",
@@ -32,14 +32,23 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "agent",
     "simulation",
     "evaluation",
     "testing",
-    "llm"
+    "llm",
+    "ai",
+    "langchain",
+    "langgraph",
+    "crewai",
+    "vitest",
+    "agentest"
   ],
   "license": "MIT",
   "engines": {

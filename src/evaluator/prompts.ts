@@ -264,11 +264,16 @@ export function renderPrompt(template: string, vars: Record<string, string>): st
  * Wraps user-controlled content in XML delimiters so the evaluator LLM
  * can clearly distinguish prompt instructions from injected data.
  */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export function wrapContent(label: string, content: string): string {
   const safe = content ?? ''
+  const escapedLabel = escapeRegex(label)
   const escaped = safe
-    .replace(new RegExp(`<${label}(?:[\\s>])`, 'gi'), (m) => `&lt;${m.slice(1)}`)
-    .replace(new RegExp(`</${label}>`, 'gi'), `&lt;/${label}&gt;`)
+    .replace(new RegExp(`<${escapedLabel}(?:[\\s>])`, 'gi'), (m) => `&lt;${m.slice(1)}`)
+    .replace(new RegExp(`</${escapedLabel}>`, 'gi'), `&lt;/${label}&gt;`)
   return `<${label}>\n${escaped}\n</${label}>`
 }
 

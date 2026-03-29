@@ -22,28 +22,21 @@ function interpolateEnvVars(headers: Record<string, string>): Record<string, str
 export function defineConfig(input: AgentestConfigInput): AgentestConfig {
   const config = configSchema.parse(input)
 
-  if (config.agent.type !== 'custom' && config.agent.headers) {
-    return {
-      ...config,
-      agent: { ...config.agent, headers: interpolateEnvVars(config.agent.headers) },
-      compare: config.compare?.map((entry) =>
-        'headers' in entry && entry.headers
-          ? { ...entry, headers: interpolateEnvVars(entry.headers) }
-          : entry,
-      ),
-    }
+  const result = { ...config }
+
+  // Interpolate env vars in agent headers
+  if (result.agent.type !== 'custom' && result.agent.headers) {
+    result.agent = { ...result.agent, headers: interpolateEnvVars(result.agent.headers) }
   }
 
-  if (config.compare) {
-    return {
-      ...config,
-      compare: config.compare.map((entry) =>
-        'headers' in entry && entry.headers
-          ? { ...entry, headers: interpolateEnvVars(entry.headers) }
-          : entry,
-      ),
-    }
+  // Interpolate env vars in compare entry headers
+  if (result.compare) {
+    result.compare = result.compare.map((entry) =>
+      'headers' in entry && entry.headers
+        ? { ...entry, headers: interpolateEnvVars(entry.headers) }
+        : entry,
+    )
   }
 
-  return config
+  return result
 }

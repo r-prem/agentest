@@ -3,7 +3,8 @@
 import { Command } from 'commander'
 import path from 'node:path'
 import { readFile, access } from 'node:fs/promises'
-import { watch, type FSWatcher } from 'node:fs'
+import { watch, readFileSync, type FSWatcher } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { createJiti } from 'jiti'
 import { parse as parseYaml } from 'yaml'
 import { defineConfig } from './config/defineConfig.js'
@@ -16,9 +17,15 @@ import { GitHubActionsReporter } from './runner/reporters/githubActions.js'
 import type { Reporter } from './runner/reporters/types.js'
 import * as prompts from './evaluator/prompts.js'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const pkg = JSON.parse(readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')) as {
+  version: string
+}
+
 const program = new Command()
 
-program.name('agentest').description('Agent simulation & evaluation framework').version('0.1.0')
+program.name('agentest').description('Agent simulation & evaluation framework').version(pkg.version)
 
 program
   .command('run')
@@ -89,11 +96,15 @@ program
       const watchers: FSWatcher[] = []
       let debounceTimer: ReturnType<typeof setTimeout> | null = null
       let running = false
+      let pendingRerun = false
 
       const triggerRerun = () => {
         if (debounceTimer) clearTimeout(debounceTimer)
         debounceTimer = setTimeout(async () => {
-          if (running) return
+          if (running) {
+            pendingRerun = true
+            return
+          }
           running = true
           console.clear()
           try {
@@ -102,6 +113,11 @@ program
             console.error('Run failed:', error instanceof Error ? error.message : error)
           }
           running = false
+          if (pendingRerun) {
+            pendingRerun = false
+            triggerRerun()
+            return
+          }
           console.log('\n\x1b[2mWatching for changes... (press Ctrl+C to stop)\x1b[0m\n')
         }, 300)
       }

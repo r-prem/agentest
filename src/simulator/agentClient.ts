@@ -271,7 +271,8 @@ export class AgentClient {
       try {
         chunk = JSON.parse(payload)
       } catch {
-        continue // skip malformed chunks
+        console.warn(`[agentest] Skipping malformed SSE chunk: ${payload.slice(0, 200)}`)
+        continue
       }
 
       const delta = chunk.choices?.[0]?.delta

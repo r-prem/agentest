@@ -29,10 +29,12 @@ export default defineConfig({
           text: 'Core Concepts',
           items: [
             { text: 'Configuration', link: '/guide/configuration' },
+            { text: 'YAML Config', link: '/guide/yaml-config' },
             { text: 'Scenarios', link: '/guide/scenarios' },
             { text: 'Mocks', link: '/guide/mocks' },
             { text: 'Trajectory Assertions', link: '/guide/trajectory-assertions' },
             { text: 'Evaluation Metrics', link: '/guide/evaluation-metrics' },
+            { text: 'Pass/Fail Logic', link: '/guide/pass-fail-logic' },
           ],
         },
         {
@@ -43,6 +45,7 @@ export default defineConfig({
             { text: 'Framework Integration', link: '/guide/framework-integration' },
             { text: 'Vitest Integration', link: '/guide/vitest-integration' },
             { text: 'Local LLMs', link: '/guide/local-llms' },
+            { text: 'Reporters', link: '/guide/reporters' },
           ],
         },
       ],
@@ -78,7 +81,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-org/agentest' },
+      { icon: 'github', link: 'https://github.com/r-prem/agentest' },
     ],
 
     search: {

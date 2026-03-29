@@ -6,5 +6,5 @@ export function createGoogleProvider(modelId: string, options?: ProviderOptions)
     ...(options?.apiKey && { apiKey: options.apiKey }),
     ...(options?.baseURL && { baseURL: options.baseURL }),
   })
-  return createLLMProvider(provider(modelId), 'google')
+  return createLLMProvider(provider(modelId), 'google', options?.timeoutMs)
 }

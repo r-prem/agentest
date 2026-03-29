@@ -25,7 +25,13 @@ export interface LLMProvider {
 /**
  * Creates an LLMProvider from any Vercel AI SDK LanguageModel instance.
  */
-export function createLLMProvider(model: LanguageModel, label: string): LLMProvider {
+const DEFAULT_LLM_TIMEOUT_MS = 120_000
+
+export function createLLMProvider(
+  model: LanguageModel,
+  label: string,
+  timeoutMs: number = DEFAULT_LLM_TIMEOUT_MS,
+): LLMProvider {
   return {
     model,
 
@@ -39,6 +45,7 @@ export function createLLMProvider(model: LanguageModel, label: string): LLMProvi
             role: m.role as 'user' | 'assistant',
             content: m.content,
           })),
+        abortSignal: AbortSignal.timeout(timeoutMs),
       })
       return { text: result.text }
     },
@@ -54,6 +61,7 @@ export function createLLMProvider(model: LanguageModel, label: string): LLMProvi
             content: m.content,
           })),
         output: Output.object({ schema: options.schema }),
+        abortSignal: AbortSignal.timeout(timeoutMs),
       })
       if (result.output == null) {
         throw new Error(`LLM did not return a valid structured output (${label})`)
@@ -68,6 +76,7 @@ export type ProviderName = 'openai' | 'anthropic' | 'google' | 'ollama' | 'opena
 export interface ProviderOptions {
   baseURL?: string
   apiKey?: string
+  timeoutMs?: number
 }
 
 const DEFAULT_OLLAMA_BASE_URL = 'http://localhost:11434/v1'
@@ -88,6 +97,7 @@ export async function createProvider(
       return createOpenAICompatProvider(modelId, {
         baseURL: options?.baseURL ?? DEFAULT_OLLAMA_BASE_URL,
         apiKey: options?.apiKey,
+        timeoutMs: options?.timeoutMs,
       })
     case 'openai-compatible':
       if (!options?.baseURL) {
@@ -98,6 +108,7 @@ export async function createProvider(
       return createOpenAICompatProvider(modelId, {
         baseURL: options.baseURL,
         apiKey: options.apiKey,
+        timeoutMs: options?.timeoutMs,
       })
   }
 }

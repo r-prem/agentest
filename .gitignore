@@ -3,3 +3,7 @@ dist/
 .idea/
 project.md
 todo.md
+
+# VitePress
+docs/.vitepress/cache
+docs/.vitepress/dist

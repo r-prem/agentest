@@ -6,5 +6,5 @@ export function createAnthropicProvider(modelId: string, options?: ProviderOptio
     ...(options?.apiKey && { apiKey: options.apiKey }),
     ...(options?.baseURL && { baseURL: options.baseURL }),
   })
-  return createLLMProvider(provider(modelId), 'anthropic')
+  return createLLMProvider(provider(modelId), 'anthropic', options?.timeoutMs)
 }
