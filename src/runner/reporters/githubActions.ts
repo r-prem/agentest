@@ -7,7 +7,7 @@ import type {
 } from '../runner.js'
 import type { Reporter } from './types.js'
 import type { UniqueError } from '../../evaluator/errorDetection.js'
-import { computeMetricAverages } from '../../evaluator/scoring.js'
+import { computeMetricAverages, computeThresholdViolations } from '../../evaluator/scoring.js'
 
 /** Escape a string for safe use inside a Markdown table cell. */
 function escapeMarkdown(text: string): string {
@@ -83,7 +83,7 @@ export class GitHubActionsReporter implements Reporter {
 
   private emitRunAnnotations(result: RunResult): void {
     for (const sr of result.scenarioResults) {
-      const violations = this.computeThresholdViolations(sr)
+      const violations = this.getThresholdViolations(sr)
       for (const v of violations) {
         this.annotate(
           'warning',
@@ -166,7 +166,7 @@ export class GitHubActionsReporter implements Reporter {
 
     // Threshold violations
     const allViolations = result.scenarioResults.flatMap((sr) =>
-      this.computeThresholdViolations(sr).map((v) => ({ ...v, scenario: sr.scenario.name })),
+      this.getThresholdViolations(sr).map((v) => ({ ...v, scenario: sr.scenario.name })),
     )
     if (allViolations.length > 0) {
       lines.push('', '### Threshold Violations', '')
@@ -260,20 +260,8 @@ export class GitHubActionsReporter implements Reporter {
     return [...names]
   }
 
-  private computeThresholdViolations(
-    sr: ScenarioResult,
-  ): Array<{ metric: string; avg: number; threshold: number }> {
-    const violations: Array<{ metric: string; avg: number; threshold: number }> = []
-    const averages = computeMetricAverages(sr.evaluations.values())
-
-    for (const [metric, threshold] of Object.entries(this.thresholds)) {
-      const avg = averages[metric]
-      if (avg != null && avg < threshold) {
-        violations.push({ metric, avg, threshold })
-      }
-    }
-
-    return violations
+  private getThresholdViolations(sr: ScenarioResult) {
+    return computeThresholdViolations(sr.evaluations.values(), this.thresholds)
   }
 
   private getFailureReason(result: ScenarioResult): string {
@@ -298,7 +286,7 @@ export class GitHubActionsReporter implements Reporter {
       }
     }
 
-    const violations = this.computeThresholdViolations(result)
+    const violations = this.getThresholdViolations(result)
     if (violations.length > 0) {
       reasons.push(`${violations.length} threshold violation(s)`)
     }

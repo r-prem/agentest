@@ -139,7 +139,7 @@ async function createGoogleProvider(
 
 async function createOpenAICompatProvider(
   modelId: string,
-  options: { baseURL: string; apiKey?: string },
+  options: { baseURL: string; apiKey?: string; timeoutMs?: number },
 ): Promise<LLMProvider> {
   const { createOpenAICompatibleProvider: create } = await import('./openai-compatible.js')
   return create(modelId, options)

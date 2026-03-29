@@ -76,7 +76,12 @@ export {
 } from './evaluator/prompts.js'
 
 // Scoring
-export { computeTurnAverages, computeMetricAverages } from './evaluator/scoring.js'
+export {
+  computeTurnAverages,
+  computeMetricAverages,
+  computeThresholdViolations,
+} from './evaluator/scoring.js'
+export type { ThresholdViolation } from './evaluator/scoring.js'
 
 // Runner
 export { Runner } from './runner/runner.js'

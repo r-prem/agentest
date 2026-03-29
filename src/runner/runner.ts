@@ -12,7 +12,7 @@ import { TrajectoryMatcher, type TrajectoryResult } from '../evaluator/trajector
 import { ErrorDetection, type UniqueError, type FailureTurn } from '../evaluator/errorDetection.js'
 import { createProvider } from '../llm/provider.js'
 import type { LLMProvider } from '../llm/provider.js'
-import { computeMetricAverages } from '../evaluator/scoring.js'
+import { computeThresholdViolations } from '../evaluator/scoring.js'
 import type { DiscoveryResult } from './discovery.js'
 import type { Reporter, ProgressEvent } from './reporters/types.js'
 
@@ -401,10 +401,8 @@ export class Runner {
 
     // Check thresholds
     if (this.config.thresholds) {
-      const averages = computeMetricAverages(evaluations.values())
-      for (const [metricName, threshold] of Object.entries(this.config.thresholds)) {
-        const avg = averages[metricName]
-        if (avg != null && avg < threshold) return false
+      if (computeThresholdViolations(evaluations.values(), this.config.thresholds).length > 0) {
+        return false
       }
     }
 

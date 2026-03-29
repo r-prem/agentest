@@ -210,7 +210,7 @@ export class ConsoleReporter implements Reporter {
 
     // Threshold failures
     if (!result.passed && Object.keys(this.thresholds).length > 0) {
-      const failures = this.computeThresholdFailures(result)
+      const failures = computeThresholdViolations(result.evaluations.values(), this.thresholds)
       if (failures.length > 0) {
         console.log(`${indent}${RED}Threshold failures:${RESET}`)
         for (const f of failures) {
