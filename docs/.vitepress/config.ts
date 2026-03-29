@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Agentest',
   description: 'Embedded agent simulation & evaluation framework for Node.js/TypeScript',
-  base: '/',
+  base: '/agentest/',
 
   themeConfig: {
     logo: '/logo.svg',
