@@ -233,5 +233,4 @@ Error: Invalid configuration
 ## Next Steps
 
 - [Configuration API](/reference/config-api) - Full reference for all options
-- [Custom Handler](/guide/custom-handler) - Learn about custom handlers (requires TypeScript config)
 - [Getting Started](/guide/getting-started) - Initial setup guide
