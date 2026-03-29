@@ -1,6 +1,6 @@
 {
   "name": "@agentesting/agentest",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",
   "main": "./dist/index.js",
@@ -58,7 +58,7 @@
   "bugs": {
     "url": "https://github.com/r-prem/agentest/issues"
   },
-  "homepage": "https://github.com/r-prem/agentest#readme",
+  "homepage": "https://r-prem.github.io/agentest/",
   "engines": {
     "node": ">=20"
   },
