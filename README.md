@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/agentest-logo.svg" alt="Agentest Logo" width="400" />
+</p>
+
 # Agentest
 
 **Vitest for AI agents.** Scenario-based testing with simulated users, tool-call mocks, and LLM-as-judge evaluation. Lives in your project like Playwright. Run with `npx agentest run`.
