@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/agentest-logo.svg" alt="Agentest Logo" width="400" />
+  <img src="assets/agentest-logo.svg" alt="Agentest Logo" width="250" />
 </p>
 
 # Agentest
