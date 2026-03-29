@@ -1,5 +1,5 @@
 {
-  "name": "agentest",
+  "name": "@agentesting/agentest",
   "version": "0.0.1",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",

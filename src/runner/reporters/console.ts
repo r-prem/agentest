@@ -296,5 +296,4 @@ export class ConsoleReporter implements Reporter {
     }
     console.log(`    ${DIM}── end transcript ──${RESET}`)
   }
-
 }

@@ -7,3 +7,5 @@ todo.md
 # VitePress
 docs/.vitepress/cache
 docs/.vitepress/dist
+
+.npmrc

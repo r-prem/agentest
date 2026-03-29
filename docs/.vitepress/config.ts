@@ -61,9 +61,7 @@ export default defineConfig({
         },
         {
           text: 'Types',
-          items: [
-            { text: 'Type Definitions', link: '/reference/types' },
-          ],
+          items: [{ text: 'Type Definitions', link: '/reference/types' }],
         },
       ],
       '/examples/': [
@@ -80,9 +78,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/r-prem/agentest' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/r-prem/agentest' }],
 
     search: {
       provider: 'local',
