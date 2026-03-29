@@ -42,7 +42,7 @@ features:
 Install Agentest:
 
 ```bash
-npm install agentest --save-dev
+npm install @agentesting/agentest --save-dev
 ```
 
 Create a config file:

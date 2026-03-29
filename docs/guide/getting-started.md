@@ -5,7 +5,7 @@ Get up and running with Agentest in under 5 minutes.
 ## Installation
 
 ```bash
-npm install agentest --save-dev
+npm install @agentesting/agentest --save-dev
 ```
 
 ## Requirements

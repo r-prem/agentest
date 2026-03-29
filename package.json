@@ -51,6 +51,14 @@
     "agentest"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r-prem/agentest.git"
+  },
+  "bugs": {
+    "url": "https://github.com/r-prem/agentest/issues"
+  },
+  "homepage": "https://github.com/r-prem/agentest#readme",
   "engines": {
     "node": ">=20"
   },

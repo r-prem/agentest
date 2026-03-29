@@ -9,7 +9,7 @@
 Agentest spins up LLM-powered simulated users that talk to your agent, intercepts tool calls through mocks, and evaluates every turn with LLM-as-judge metrics — all without touching your agent's code.
 
 ```bash
-npm install agentest --save-dev
+npm install @agentesting/agentest --save-dev
 ```
 
 ### Features
@@ -136,7 +136,7 @@ These tools are complementary. Run Agentest in CI to catch regressions before de
 ## Install
 
 ```bash
-npm install agentest --save-dev
+npm install @agentesting/agentest --save-dev
 ```
 
 ## Quick Start
