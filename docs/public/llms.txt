@@ -1,0 +1,133 @@
+# Agentest
+
+> Vitest for AI agents. Scenario-based testing with simulated users, tool-call mocks, and LLM-as-judge evaluation.
+
+Agentest is an embedded agent simulation and evaluation framework for Node.js/TypeScript. It spins up LLM-powered simulated users that talk to your agent, intercepts tool calls through mocks, and evaluates every turn with LLM-as-judge metrics — all without touching your agent's code.
+
+## Key Features
+
+- **Scenario-based tests**: Define user personas, goals, and knowledge — Agentest generates realistic multi-turn conversations
+- **Tool-call mocks**: Intercept and control tool calls with functions, sequences, and error simulation
+- **Trajectory assertions**: Verify tool call order and arguments with strict, contains, unordered, and within match modes
+- **LLM-as-judge metrics**: Helpfulness, coherence, relevance, faithfulness, goal completion, behavior failure detection (8 built-in metrics + custom)
+- **Comparison mode**: Run the same scenarios against multiple models/configs side-by-side
+- **CI-ready CLI**: Exit codes, JSON reporter, GitHub Actions annotations, watch mode
+- **Custom handler**: Bring any agent — HTTP endpoint or in-process function. Works with any framework
+
+## Installation
+
+```bash
+npm install @agentesting/agentest --save-dev
+```
+
+Requires Node.js >= 20. Your agent must expose an OpenAI-compatible chat completions endpoint or use a custom handler function.
+
+## Quick Start
+
+Create `agentest.config.ts`:
+
+```ts
+import { defineConfig } from '@agentesting/agentest'
+
+export default defineConfig({
+  agent: {
+    name: 'my-agent',
+    endpoint: 'http://localhost:3000/api/chat',
+  },
+})
+```
+
+Write a scenario file (`tests/booking.sim.ts`):
+
+```ts
+import { scenario, sequence } from '@agentesting/agentest'
+
+scenario('user books a morning slot', {
+  profile: 'Busy professional who prefers mornings.',
+  goal: 'Book a haircut for next Tuesday morning.',
+  mocks: {
+    tools: {
+      check_availability: (args) => ({
+        available: true,
+        slots: ['09:00', '09:45', '10:30'],
+      }),
+      create_booking: sequence([
+        { success: true, bookingId: 'BK-001' },
+      ]),
+    },
+  },
+  assertions: {
+    toolCalls: {
+      matchMode: 'contains',
+      expected: [
+        { name: 'check_availability', argMatchMode: 'ignore' },
+        { name: 'create_booking', argMatchMode: 'ignore' },
+      ],
+    },
+  },
+})
+```
+
+Run:
+
+```bash
+npx agentest run
+```
+
+## How It Works
+
+1. **SimulatedUser (LLM)** generates a message based on the persona, goal, and knowledge
+2. Agentest **POSTs** the message to your agent endpoint
+3. If the agent responds with **tool_calls**, the MockResolver resolves each call through your mocks, injects results back, and calls the agent again (loops until agent returns text)
+4. The SimulatedUser sees the agent's reply and decides whether the **goal is met** or to continue
+5. After all turns: **LLM-as-judge metrics** evaluate every turn across multiple dimensions
+6. **Trajectory assertions** deterministically verify tool call order and arguments
+7. **Error deduplication** groups qualitative failures by root cause with severity levels
+
+## Execution Model
+
+- Scenarios run in parallel (bounded by `concurrency` setting)
+- Conversations within a scenario run sequentially
+- Evaluation metrics run in parallel per turn
+- Mock state resets at the start of each conversation
+
+## Pass/Fail Logic
+
+A scenario passes when: no conversation errors, all trajectory assertions match, no errors at or above the configured severity threshold, and all metric averages meet thresholds.
+
+## Environment Variables
+
+```bash
+ANTHROPIC_API_KEY=...    # For Anthropic (default provider)
+OPENAI_API_KEY=...       # For OpenAI
+GOOGLE_GENERATIVE_AI_API_KEY=...  # For Google
+```
+
+## Documentation
+
+- [What is Agentest?](https://r-prem.github.io/agentest/guide/what-is-agentest)
+- [Getting Started](https://r-prem.github.io/agentest/guide/getting-started)
+- [How It Works](https://r-prem.github.io/agentest/guide/how-it-works)
+- [Configuration](https://r-prem.github.io/agentest/guide/configuration)
+- [Scenarios](https://r-prem.github.io/agentest/guide/scenarios)
+- [Mocks](https://r-prem.github.io/agentest/guide/mocks)
+- [Trajectory Assertions](https://r-prem.github.io/agentest/guide/trajectory-assertions)
+- [Evaluation Metrics](https://r-prem.github.io/agentest/guide/evaluation-metrics)
+- [Custom Metrics](https://r-prem.github.io/agentest/guide/custom-metrics)
+- [Comparison Mode](https://r-prem.github.io/agentest/guide/comparison-mode)
+- [Pass/Fail Logic](https://r-prem.github.io/agentest/guide/pass-fail-logic)
+- [Framework Integration](https://r-prem.github.io/agentest/guide/framework-integration)
+- [Vitest Integration](https://r-prem.github.io/agentest/guide/vitest-integration)
+- [Local LLMs](https://r-prem.github.io/agentest/guide/local-llms)
+- [Reporters](https://r-prem.github.io/agentest/guide/reporters)
+- [YAML Config](https://r-prem.github.io/agentest/guide/yaml-config)
+- [CLI Reference](https://r-prem.github.io/agentest/reference/cli)
+- [Configuration API](https://r-prem.github.io/agentest/reference/config-api)
+- [Scenario API](https://r-prem.github.io/agentest/reference/scenario-api)
+- [Metrics API](https://r-prem.github.io/agentest/reference/metrics-api)
+- [Type Definitions](https://r-prem.github.io/agentest/reference/types)
+
+## Source
+
+- [GitHub](https://github.com/r-prem/agentest)
+- [npm](https://www.npmjs.com/package/@agentesting/agentest)

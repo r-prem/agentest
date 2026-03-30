@@ -9,3 +9,7 @@ docs/.vitepress/cache
 docs/.vitepress/dist
 
 .npmrc
+
+# Demos
+demos/**/node_modules/
+demos/**/.env
