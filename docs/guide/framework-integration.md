@@ -80,6 +80,8 @@ export default defineConfig({
 })
 ```
 
+> **Full demo:** See [`demos/langchain-tool-agent/`](https://github.com/r-prem/agentest/tree/master/demos/langchain-tool-agent) for a complete working example with 4 tools and 24 scenarios.
+
 For LangGraph agents, call `graph.invoke()` in the handler and map the final state to a response:
 
 ```ts
@@ -158,6 +160,8 @@ export default defineConfig({
 })
 ```
 
+> **Full demo:** See [`demos/vercel-ai-agent/`](https://github.com/r-prem/agentest/tree/master/demos/vercel-ai-agent) for a complete working example with tool calling and 24 scenarios.
+
 ### Mastra
 
 ```ts
@@ -210,6 +214,8 @@ export default defineConfig({
 ```
 
 This pattern works for **any** Python framework — CrewAI, AutoGen/AG2, LlamaIndex, Haystack, Pydantic AI, Semantic Kernel, etc. The key is to return the response in the OpenAI chat completions format.
+
+> **Full demo:** See [`demos/crewai-agent/`](https://github.com/r-prem/agentest/tree/master/demos/crewai-agent) for a complete working example with a FastAPI server and 24 scenarios.
 
 ### Tool Calls with Custom Handlers
 

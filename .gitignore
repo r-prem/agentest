@@ -13,3 +13,6 @@ docs/.vitepress/dist
 # Demos
 demos/**/node_modules/
 demos/**/.env
+demos/**/__pycache__/
+demos/**/*.pyc
+demos/**/.venv/

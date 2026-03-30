@@ -77,6 +77,7 @@ export default defineConfig({
             { text: 'Multi-turn Conversations', link: '/examples/multi-turn' },
             { text: 'Custom Handler', link: '/examples/custom-handler' },
             { text: 'Tool Call Sequences', link: '/examples/tool-sequences' },
+            { text: 'Demos', link: '/examples/demos' },
           ],
         },
       ],

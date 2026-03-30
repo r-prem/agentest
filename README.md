@@ -6,7 +6,7 @@
 
 **Vitest for AI agents.** Scenario-based testing with simulated users, tool-call mocks, and LLM-as-judge evaluation. Lives in your project like Playwright. Run with `npx agentest run`.
 
-**[Documentation](https://r-prem.github.io/agentest/)** | **[Getting Started](https://r-prem.github.io/agentest/guide/getting-started)** | **[Examples](https://r-prem.github.io/agentest/examples/basic-scenario)**
+**[Documentation](https://r-prem.github.io/agentest/)** | **[Getting Started](https://r-prem.github.io/agentest/guide/getting-started)** | **[Examples](https://r-prem.github.io/agentest/examples/basic-scenario)** | **[Demos](demos/)**
 
 Agentest spins up LLM-powered simulated users that talk to your agent, intercepts tool calls through mocks, and evaluates every turn with LLM-as-judge metrics — all without touching your agent's code.
 
@@ -137,6 +137,7 @@ These tools are complementary. Run Agentest in CI to catch regressions before de
 - [Watch Mode](#watch-mode)
 - [Local LLMs](#local-llms)
 - [Pass/Fail Logic](#passfail-logic)
+- [Demos](#demos)
 - [Programmatic Usage](#programmatic-usage)
 - [Understanding LLM Usage](#understanding-llm-usage)
 - [Requirements](#requirements)
@@ -1110,6 +1111,8 @@ export default defineConfig({
 
 For LangGraph agents, call `graph.invoke()` in the handler and map the final state to a response.
 
+> **Full demo:** See [`demos/langchain-tool-agent/`](demos/langchain-tool-agent/) for a complete working example with 4 tools and 24 scenarios.
+
 ### Anthropic Claude SDK
 
 ```ts
@@ -1160,6 +1163,8 @@ export default defineConfig({
 })
 ```
 
+> **Full demo:** See [`demos/vercel-ai-agent/`](demos/vercel-ai-agent/) for a complete working example with tool calling and 24 scenarios.
+
 ### CrewAI / AutoGen / Python Frameworks
 
 Python-based frameworks need a thin HTTP layer. Wrap your agent in a FastAPI endpoint:
@@ -1193,6 +1198,8 @@ export default defineConfig({
 
 This pattern works for **any** Python framework — CrewAI, AutoGen/AG2, LlamaIndex, Haystack, Pydantic AI, Semantic Kernel, etc.
 
+> **Full demo:** See [`demos/crewai-agent/`](demos/crewai-agent/) for a complete working example with a FastAPI server and 24 scenarios.
+
 ### Mastra
 
 ```ts
@@ -1219,6 +1226,30 @@ export default defineConfig({
 |----------|--------|
 | **MCP (Model Context Protocol)** | Not yet — MCP servers provide tools, not a chat interface |
 | **A2A (Agent-to-Agent)** | Planned for a future release |
+
+---
+
+## Demos
+
+The [`demos/`](demos/) directory contains complete, runnable examples showing how to use Agentest with different agent frameworks. Each demo includes an agent with 4 tools, 24 scenario files, and a ready-to-use config.
+
+| Demo | Framework | Integration | Description |
+|------|-----------|-------------|-------------|
+| [`langchain-tool-agent`](demos/langchain-tool-agent/) | LangChain | Custom handler | In-process LangChain agent with `ChatOpenAI` |
+| [`vercel-ai-agent`](demos/vercel-ai-agent/) | Vercel AI SDK | Custom handler | In-process agent using `generateText()` from the `ai` package |
+| [`crewai-agent`](demos/crewai-agent/) | CrewAI (Python) | HTTP endpoint | Python agent wrapped in a FastAPI server |
+
+### Running a demo
+
+```bash
+# Example: Vercel AI SDK
+cd demos/vercel-ai-agent
+npm install
+cp .env.example .env   # add your API key
+npm run sim
+```
+
+The LangChain and Vercel AI SDK demos use **custom handlers** — the agent runs in-process, no server needed. The CrewAI demo uses an **HTTP endpoint** — start the Python server first, then run `npm run sim`.
 
 ---
 
