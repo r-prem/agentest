@@ -1,0 +1,25 @@
+{
+  "name": "langchain-tool-agent-demo",
+  "version": "1.0.0",
+  "description": "Demo: testing a LangChain agent with agentest using a custom handler",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "sim": "npx agentest run",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@agentesting/agentest": "^0.0.5",
+    "@langchain/core": "^1.1.36",
+    "@langchain/openai": "^1.3.1",
+    "dotenv": "^17.3.1",
+    "langchain": "^1.2.37",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}

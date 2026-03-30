@@ -39,7 +39,7 @@ const customAgentSchema = z.object({
   name: z.string(),
   handler: z
     .function()
-    .args(z.tuple([z.array(chatMessageSchema)]))
+    .args(z.array(chatMessageSchema))
     .returns(z.promise(chatMessageSchema)),
 })
 

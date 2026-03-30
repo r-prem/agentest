@@ -5,6 +5,10 @@ export default defineConfig({
   description: 'Embedded agent simulation & evaluation framework for Node.js/TypeScript',
   base: '/agentest/',
 
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/agentest/logo.svg' }],
+  ],
+
   themeConfig: {
     logo: '/logo.svg',
 
