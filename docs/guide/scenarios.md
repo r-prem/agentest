@@ -2,21 +2,35 @@
 
 Learn how to define test scenarios for your agent.
 
-## Basic Structure
+## Two Modes
+
+Agentest supports two modes for defining scenarios:
+
+**Simulated mode** — An LLM-powered user drives the conversation based on a `profile` and `goal`. Best for exploratory testing and persona-based variance.
 
 ```ts
-import { scenario } from '@agentesting/agentest'
-
-scenario('descriptive name', {
-  profile: 'User personality and context',
-  goal: 'What the user wants to accomplish',
-  // ... options
+scenario('simulated booking', {
+  profile: 'Busy professional who prefers mornings.',
+  goal: 'Book a haircut for Tuesday morning.',
 })
 ```
 
-## Profile & Goal
+**Scripted mode** — You define exact user messages with `turns`. No LLM is used for the user side. Best for deterministic regression tests and context carry-forward testing.
 
-The `profile` and `goal` are the foundation of every scenario. They define who the simulated user is and what they're trying to accomplish.
+```ts
+scenario('scripted follow-up', {
+  turns: [
+    { userMessage: 'How fast was Leo (12345678) last week?' },
+    { userMessage: 'And what about its failure count?' },
+  ],
+})
+```
+
+See [Multi-turn Conversations](/examples/multi-turn) for detailed scripted examples.
+
+## Simulated Mode: Profile & Goal
+
+The `profile` and `goal` are the foundation of simulated scenarios. They define who the simulated user is and what they're trying to accomplish. These fields are **required** for simulated scenarios and **optional** for scripted scenarios.
 
 ### Profile
 
@@ -338,6 +352,72 @@ export default defineConfig({
   // ...
 })
 ```
+
+## Testing Multi-Agent Routing
+
+Agents with supervisor/sub-agent architectures handle tool routing internally — the supervisor decides which domain agent to call, and tool calls never leave the agent process. To test these with agentest's mock system, use a `custom` handler with `ctx.resolveTool()`.
+
+The custom handler creates the agent in-process with mock dependencies that delegate to agentest's mock resolver:
+
+```ts
+// agentest.config.ts
+import { defineConfig } from '@agentesting/agentest'
+import { createSupervisor } from './src/agents/supervisor.js'
+
+export default defineConfig({
+  agent: {
+    type: 'custom',
+    name: 'my-supervisor',
+    handler: async (messages, ctx) => {
+      // Create a mock API client that uses agentest's mock resolver
+      const mockClient = {
+        async get(endpoint, params) {
+          return ctx.resolveTool(endpoint, params)
+        },
+      }
+
+      // Create the agent with mocked dependencies
+      const agent = createSupervisor({ client: mockClient })
+      const result = await agent.invoke({ messages })
+      return { role: 'assistant', content: result.content }
+    },
+  },
+})
+```
+
+```ts
+// scenarios/routing.sim.ts
+import { scenario } from '@agentesting/agentest'
+
+scenario('supervisor routes to performance agent', {
+  turns: [
+    {
+      userMessage: 'How fast was vehicle 12345678 last week?',
+      assertions: {
+        toolCalls: {
+          matchMode: 'contains',
+          expected: [
+            { name: 'get_report_data', args: { serials: '12345678' }, argMatchMode: 'partial' },
+          ],
+        },
+      },
+    },
+  ],
+
+  mocks: {
+    tools: {
+      get_report_data: (args) => ({ speed_avg: 0.8, unit: 'm/s' }),
+    },
+  },
+})
+```
+
+When the agent internally calls `get_report_data`, the mock client calls `ctx.resolveTool('get_report_data', args)`, which:
+1. Resolves through agentest's per-scenario mock definitions
+2. Records the tool call for trajectory assertions
+3. Returns the mock result to the agent
+
+This gives you full control over tool responses while testing the actual routing logic of your supervisor.
 
 ## Complete Example
 

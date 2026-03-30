@@ -7,9 +7,12 @@ export type { AgentestConfig, AgentestConfigInput, CustomAgentHandler } from './
 export { scenario, getRegisteredScenarios, clearScenarioRegistry } from './scenario/scenario.js'
 export { sequence } from './scenario/mocks.js'
 export { AgentestError, MockResolver } from './scenario/mocks.js'
+export { validateScenarioOptions } from './scenario/types.js'
 export type {
   Scenario,
   ScenarioOptions,
+  ScriptedTurn,
+  CustomHandlerContext,
   ToolMockFn,
   ToolCallRecord,
   ToolCallAssertion,
@@ -86,6 +89,7 @@ export type { ThresholdViolation } from './evaluator/scoring.js'
 // Runner
 export { Runner } from './runner/runner.js'
 export type {
+  PerTurnTrajectoryResult,
   ScenarioResult,
   RunResult,
   ComparisonAgentResult,

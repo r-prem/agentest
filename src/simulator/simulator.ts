@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type { AgentestConfig } from '../config/schema.js'
-import type { Scenario, ToolCallRecord } from '../scenario/types.js'
+import type { Scenario, ToolCallRecord, CustomHandlerContext } from '../scenario/types.js'
 import type { ToolMockFn } from '../scenario/types.js'
 import { MockResolver, AgentestError } from '../scenario/mocks.js'
 import { AgentClient, type ChatMessage, type ToolCall } from './agentClient.js'
@@ -68,8 +68,10 @@ export class Simulator {
   }
 
   async runScenario(scenario: Scenario): Promise<SimulationResult> {
+    const isScripted = Array.isArray(scenario.options.turns) && scenario.options.turns.length > 0
     const conversationCount =
-      scenario.options.conversationsPerScenario ?? this.config.conversationsPerScenario
+      scenario.options.conversationsPerScenario ??
+      (isScripted ? 1 : this.config.conversationsPerScenario)
     const conversations: ConversationRecord[] = []
 
     for (let i = 0; i < conversationCount; i++) {
@@ -85,8 +87,12 @@ export class Simulator {
     scenario: Scenario,
     conversationId: string,
   ): Promise<ConversationRecord> {
-    const maxTurns = scenario.options.maxTurns ?? this.config.maxTurns
-    const simulatedUser = new SimulatedUser(this.llmProvider, scenario.options)
+    const isScripted = Array.isArray(scenario.options.turns) && scenario.options.turns.length > 0
+    const scriptedTurns = scenario.options.turns
+    const maxTurns = isScripted
+      ? scriptedTurns!.length
+      : (scenario.options.maxTurns ?? this.config.maxTurns)
+    const simulatedUser = isScripted ? null : new SimulatedUser(this.llmProvider, scenario.options)
     const mockResolver = new MockResolver(
       scenario.options.mocks?.tools as Record<string, ToolMockFn> | undefined,
       this.config.unmockedTools,
@@ -101,29 +107,52 @@ export class Simulator {
 
     try {
       for (let turnIndex = 0; turnIndex < maxTurns; turnIndex++) {
-        // 1. Simulated user generates a message
-        this.onProgress?.({
-          scenario: scenario.name,
-          conversationId,
-          turn: turnIndex + 1,
-          maxTurns,
-          phase: 'user-message',
-        })
-        const userResponse = await simulatedUser.generateMessage(conversationHistory)
+        // 1. Get the next user message
+        let userMessage: string
+        let shouldStop = false
 
-        // On subsequent turns, if the simulated user signals stop *before*
-        // sending a new message, the goal is already met — end the conversation.
-        if (userResponse.shouldStop && turnIndex > 0) {
-          break
+        if (isScripted) {
+          userMessage = scriptedTurns![turnIndex].userMessage
+        } else {
+          this.onProgress?.({
+            scenario: scenario.name,
+            conversationId,
+            turn: turnIndex + 1,
+            maxTurns,
+            phase: 'user-message',
+          })
+          const userResponse = await simulatedUser!.generateMessage(conversationHistory)
+
+          // On subsequent turns, if the simulated user signals stop *before*
+          // sending a new message, the goal is already met — end the conversation.
+          if (userResponse.shouldStop && turnIndex > 0) {
+            break
+          }
+
+          userMessage = userResponse.message
+          shouldStop = userResponse.shouldStop
         }
 
-        const userMessage = userResponse.message
         conversationHistory.push({ role: 'user', content: userMessage })
         agentMessages.push({ role: 'user', content: userMessage })
 
         // 2. Send to agent and handle tool call loop
         const turnToolCalls: ToolCallRecord[] = []
         let agentFinalText = ''
+
+        // Set up context for custom handler (provides resolveTool for in-process agents)
+        const contextToolCalls: ToolCallRecord[] = []
+        const handlerCtx: CustomHandlerContext = {
+          resolveTool: async (name, args) => {
+            const resolved = await mockResolver.resolve(name, args, turnIndex)
+            contextToolCalls.push({ name, args, result: resolved.result, turnIndex })
+            return resolved.result
+          },
+          turnIndex,
+          conversationId,
+          scenarioName: scenario.name,
+        }
+        this.agentClient.setHandlerContext(handlerCtx)
 
         this.onProgress?.({
           scenario: scenario.name,
@@ -173,6 +202,9 @@ export class Simulator {
         agentMessages.push(response.message)
         conversationHistory.push({ role: 'assistant', content: agentFinalText })
 
+        // Merge tool calls resolved via ctx.resolveTool (custom handler in-process mocks)
+        turnToolCalls.push(...contextToolCalls)
+
         turns.push({
           turnIndex,
           userMessage,
@@ -182,7 +214,7 @@ export class Simulator {
 
         // On turn 0 the user signalled stop with their first message — now
         // that the agent has replied once, honour that signal and end.
-        if (userResponse.shouldStop) {
+        if (shouldStop) {
           break
         }
       }

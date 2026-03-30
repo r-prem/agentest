@@ -25,6 +25,7 @@ npm install @agentesting/agentest --save-dev
 | | |
 |---|---|
 | Scenario-based tests | Define user personas, goals, and knowledge — Agentest generates realistic multi-turn conversations |
+| Scripted multi-turn | Predetermined user messages with per-turn trajectory assertions for deterministic regression tests |
 | Tool-call mocks | Intercept and control tool calls with functions, sequences, and error simulation |
 | Trajectory assertions | Verify tool call order and arguments with `strict`, `contains`, `unordered`, and `within` match modes |
 | LLM-as-judge metrics | Helpfulness, coherence, relevance, faithfulness, goal completion, behavior failure detection |
@@ -205,6 +206,44 @@ scenario('user books a morning slot', {
 })
 ```
 
+#### Scripted alternative
+
+For deterministic tests with predetermined user messages and per-turn assertions:
+
+```ts
+// tests/context.sim.ts
+import { scenario } from '@agentesting/agentest'
+
+scenario('follow-up reuses vehicle context', {
+  turns: [
+    {
+      userMessage: 'How fast was Leo (12345678) last week?',
+      assertions: {
+        toolCalls: {
+          matchMode: 'contains',
+          expected: [{ name: 'get_speed', args: { id: '12345678' }, argMatchMode: 'partial' }],
+        },
+      },
+    },
+    {
+      userMessage: 'And what about its failure count?',
+      assertions: {
+        toolCalls: {
+          matchMode: 'contains',
+          expected: [{ name: 'get_failures', args: { id: '12345678' }, argMatchMode: 'partial' }],
+        },
+      },
+    },
+  ],
+  mocks: {
+    tools: {
+      get_speed: () => ({ speed: 0.8, unit: 'm/s' }),
+      get_failures: () => ({ count: 5 }),
+    },
+  },
+})
+```
+
 ### 3. Run
 
 ```bash
@@ -337,11 +376,27 @@ export default defineConfig({
 })
 ```
 
-The handler receives the full message history (same `ChatMessage` format used internally) and must return an assistant message. If the response includes `tool_calls`, Agentest runs them through mocks and calls your handler again with the tool results — the same loop as with HTTP endpoints.
+The handler receives the full message history and a `ctx` object. If the response includes `tool_calls`, Agentest runs them through mocks and calls your handler again with the tool results — the same loop as with HTTP endpoints.
+
+The `ctx` object provides `resolveTool()` for agents that handle tools internally (e.g., multi-agent supervisors):
+
+```ts
+handler: async (messages, ctx) => {
+  const mockClient = {
+    async get(endpoint, params) {
+      return ctx.resolveTool(endpoint, params)  // uses scenario mocks, records for trajectory
+    },
+  }
+  const agent = createSupervisor({ client: mockClient })
+  const result = await agent.invoke({ messages })
+  return { role: 'assistant' as const, content: result.content }
+}
+```
 
 This is useful when your agent:
 - Uses a non-OpenAI API (Anthropic, Google, custom protocols)
 - Runs in-process (no HTTP server needed)
+- Has multi-agent routing that handles tools internally
 - Needs custom request/response mapping
 - Uses an SDK or framework with its own calling convention
 

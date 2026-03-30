@@ -37,7 +37,11 @@ scenario('user books a morning slot', {
 })
 ```
 
-Assertions are checked **per-conversation**. If any conversation in the scenario fails the assertion, the entire scenario fails.
+Scenario-level assertions are checked **per-conversation** across all turns combined. If any conversation fails the assertion, the entire scenario fails.
+
+::: tip Per-turn Assertions
+When using [scripted multi-turn scenarios](/examples/multi-turn#scripted-multi-turn-deterministic), each turn can define its own trajectory assertions that are checked against only that turn's tool calls. This is useful for verifying context carry-forward — e.g., that a follow-up question routes to the right domain agent with the correct vehicle serial from the previous turn.
+:::
 
 ## Match Modes
 

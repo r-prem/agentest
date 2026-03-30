@@ -104,12 +104,12 @@ export class Evaluator {
       turns.map((turn, i) => this.evaluateTurn(turn, turns.slice(0, i), scenario)),
     )
 
-    // Goal completion runs once per conversation
+    // Goal completion runs once per conversation (skip when no goal is defined)
     let goalCompletion: QuantResult | null = null
-    if (this.goalCompletionMetric) {
+    if (this.goalCompletionMetric && scenario.goal) {
       const input: ConversationScoreInput = {
         goal: scenario.goal,
-        profile: scenario.profile,
+        profile: scenario.profile ?? 'A user testing the agent',
         knowledge: scenario.knowledge ?? [],
         turns: turns.map((t) => ({
           userMessage: t.userMessage,
@@ -129,8 +129,8 @@ export class Evaluator {
     scenario: ScenarioOptions,
   ): Promise<TurnEvaluation> {
     const input: ScoreInput = {
-      goal: scenario.goal,
-      profile: scenario.profile,
+      goal: scenario.goal ?? 'Respond to the user query accurately',
+      profile: scenario.profile ?? 'A user testing the agent',
       knowledge: scenario.knowledge ?? [],
       userMessage: turn.userMessage,
       agentMessage: turn.agentMessage,

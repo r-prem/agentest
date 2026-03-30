@@ -61,6 +61,7 @@ export type CustomAgentHandler = (
       function: { name: string; arguments: string }
     }>
   }>,
+  ctx: import('../scenario/types.js').CustomHandlerContext,
 ) => Promise<{
   role: 'assistant'
   content: string | null

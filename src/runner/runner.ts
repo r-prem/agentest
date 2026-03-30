@@ -16,11 +16,17 @@ import { computeThresholdViolations } from '../evaluator/scoring.js'
 import type { DiscoveryResult } from './discovery.js'
 import type { Reporter, ProgressEvent } from './reporters/types.js'
 
+export interface PerTurnTrajectoryResult {
+  turnIndex: number
+  result: TrajectoryResult
+}
+
 export interface ScenarioResult {
   scenario: Scenario
   simulation: SimulationResult
   evaluations: Map<string, ConversationEvaluation>
   trajectoryResults: Map<string, TrajectoryResult>
+  perTurnTrajectoryResults: Map<string, PerTurnTrajectoryResult[]>
   errors: UniqueError[]
   passed: boolean
 }
@@ -280,17 +286,22 @@ export class Runner {
     const label = agentLabel ? `[${agentLabel}] ` : ''
 
     // 1. Simulate conversations
+    const isScripted = Array.isArray(scenario.options.turns) && scenario.options.turns.length > 0
+    const conversationCount =
+      scenario.options.conversationsPerScenario ??
+      (isScripted ? 1 : this.config.conversationsPerScenario)
     this.emitProgress({
       scenario: scenario.name,
       phase: 'simulating',
-      detail: `${label}${scenario.options.conversationsPerScenario ?? this.config.conversationsPerScenario} conversation(s)`,
+      detail: `${label}${conversationCount} conversation(s)`,
     })
     const simulation = await simulator.runScenario(scenario)
 
-    // 2. Evaluate each conversation
+    // 2. Evaluate each conversation (skip for scripted scenarios without a goal)
     const evaluations = new Map<string, ConversationEvaluation>()
     for (const conv of simulation.conversations) {
       if (conv.error) continue // skip errored conversations
+      if (isScripted && !scenario.options.goal) continue // no meaningful goal to evaluate against
 
       this.emitProgress({
         scenario: scenario.name,
@@ -318,6 +329,28 @@ export class Runner {
       }
     }
 
+    // 3b. Per-turn trajectory assertions (scripted scenarios)
+    const perTurnTrajectoryResults = new Map<string, PerTurnTrajectoryResult[]>()
+    if (scenario.options.turns) {
+      for (const conv of simulation.conversations) {
+        if (conv.error) continue
+        const turnResults: PerTurnTrajectoryResult[] = []
+        for (const turn of conv.turns) {
+          const scriptedTurn = scenario.options.turns[turn.turnIndex]
+          if (scriptedTurn?.assertions?.toolCalls) {
+            const result = trajectoryMatcher.match(
+              turn.toolCalls,
+              scriptedTurn.assertions.toolCalls,
+            )
+            turnResults.push({ turnIndex: turn.turnIndex, result })
+          }
+        }
+        if (turnResults.length > 0) {
+          perTurnTrajectoryResults.set(conv.conversationId, turnResults)
+        }
+      }
+    }
+
     // 4. Collect and deduplicate errors
     const allFailures: FailureTurn[] = []
     for (const [convId, evaluation] of evaluations) {
@@ -340,13 +373,20 @@ export class Runner {
     }
 
     // 5. Determine pass/fail
-    const passed = this.determinePassFail(simulation, evaluations, trajectoryResults, errors)
+    const passed = this.determinePassFail(
+      simulation,
+      evaluations,
+      trajectoryResults,
+      perTurnTrajectoryResults,
+      errors,
+    )
 
     const scenarioResult: ScenarioResult = {
       scenario,
       simulation,
       evaluations,
       trajectoryResults,
+      perTurnTrajectoryResults,
       errors,
       passed,
     }
@@ -379,6 +419,7 @@ export class Runner {
     simulation: SimulationResult,
     evaluations: Map<string, ConversationEvaluation>,
     trajectoryResults: Map<string, TrajectoryResult>,
+    perTurnTrajectoryResults: Map<string, PerTurnTrajectoryResult[]>,
     errors: UniqueError[],
   ): boolean {
     // Fail if any conversation errored
@@ -389,6 +430,11 @@ export class Runner {
     // Fail if any trajectory assertion failed
     for (const result of trajectoryResults.values()) {
       if (!result.matched) return false
+    }
+
+    // Fail if any per-turn trajectory assertion failed
+    for (const turnResults of perTurnTrajectoryResults.values()) {
+      if (turnResults.some((r) => !r.result.matched)) return false
     }
 
     // Fail if any errors meet or exceed the configured severity
