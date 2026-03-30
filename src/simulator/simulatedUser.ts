@@ -68,8 +68,8 @@ function renderTemplate(template: string, scenario: ScenarioOptions): string {
       : ''
 
   return template
-    .replaceAll('{{profile}}', scenario.profile)
-    .replaceAll('{{goal}}', scenario.goal)
+    .replaceAll('{{profile}}', scenario.profile ?? '')
+    .replaceAll('{{goal}}', scenario.goal ?? '')
     .replaceAll('{{knowledge}}', knowledgeStr)
 }
 
@@ -78,10 +78,10 @@ function buildDefaultSystemPrompt(scenario: ScenarioOptions): string {
     'You are a simulated user interacting with an AI agent. Your job is to play the role described below and work toward the stated goal.',
     '',
     `## Your Profile`,
-    scenario.profile,
+    scenario.profile ?? '',
     '',
     `## Your Goal`,
-    scenario.goal,
+    scenario.goal ?? '',
     '',
     '## Instructions',
     '- Stay in character according to your profile.',

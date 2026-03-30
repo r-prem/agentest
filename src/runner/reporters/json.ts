@@ -117,6 +117,11 @@ export class JsonReporter implements Reporter {
               }
             : null,
           trajectory: trajectory ?? null,
+          perTurnTrajectory:
+            sr.perTurnTrajectoryResults.get(conv.conversationId)?.map((r) => ({
+              turnIndex: r.turnIndex,
+              ...r.result,
+            })) ?? null,
         }
       }),
       errors: sr.errors,

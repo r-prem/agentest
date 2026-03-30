@@ -171,6 +171,29 @@ export class ConsoleReporter implements Reporter {
         }
       }
 
+      // Per-turn trajectory
+      const perTurnResults = result.perTurnTrajectoryResults.get(conv.conversationId)
+      if (perTurnResults) {
+        const failed = perTurnResults.filter((r) => !r.result.matched)
+        if (failed.length === 0) {
+          parts.push(`${GREEN}per-turn trajectories matched${RESET}`)
+        } else {
+          for (const f of failed) {
+            const details: string[] = [`turn ${f.turnIndex}`]
+            if (f.result.missingCalls.length > 0) {
+              details.push(`missing: ${f.result.missingCalls.join(', ')}`)
+            }
+            if (f.result.extraCalls.length > 0) {
+              details.push(`extra: ${f.result.extraCalls.join(', ')}`)
+            }
+            if (f.result.forbiddenCalls.length > 0) {
+              details.push(`forbidden: ${f.result.forbiddenCalls.join(', ')}`)
+            }
+            parts.push(`${RED}${details.join(' — ')}${RESET}`)
+          }
+        }
+      }
+
       // Average scores
       if (evaluation) {
         const avgScores = computeTurnAverages(evaluation.turnEvaluations)

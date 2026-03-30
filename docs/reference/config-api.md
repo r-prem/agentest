@@ -43,9 +43,20 @@ agent: {
 agent: {
   type: 'custom',
   name: string,
-  handler: (messages: ChatMessage[]) => Promise<ChatMessage>,
+  handler: (messages: ChatMessage[], ctx: CustomHandlerContext) => Promise<ChatMessage>,
 }
 ```
+
+The handler receives a `ctx` object with:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `resolveTool` | `(name: string, args: Record<string, unknown>) => Promise<unknown>` | Resolve a tool call through the scenario's mock system. Records the call for trajectory assertions. |
+| `turnIndex` | `number` | Current turn index |
+| `conversationId` | `string` | Current conversation ID |
+| `scenarioName` | `string` | Name of the running scenario |
+
+Use `ctx.resolveTool()` to wire agentest's per-scenario mocks into agents that handle tools internally (e.g., multi-agent supervisors). See [Testing Multi-Agent Routing](/guide/scenarios#testing-multi-agent-routing).
 
 ## LLM Provider
 

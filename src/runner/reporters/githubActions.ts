@@ -277,6 +277,13 @@ export class GitHubActionsReporter implements Reporter {
       reasons.push(`${failedTrajectories.length} trajectory assertion(s) failed`)
     }
 
+    const failedPerTurn = [...result.perTurnTrajectoryResults.values()].flatMap((rs) =>
+      rs.filter((r) => !r.result.matched),
+    )
+    if (failedPerTurn.length > 0) {
+      reasons.push(`${failedPerTurn.length} per-turn trajectory assertion(s) failed`)
+    }
+
     if (result.errors.length > 0) {
       const critical = result.errors.filter(
         (e) => e.severity === 'critical' || e.severity === 'high',

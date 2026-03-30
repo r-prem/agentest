@@ -157,6 +157,22 @@ function formatScenarioFailure(sr: ScenarioResult): string {
     }
   }
 
+  // Per-turn trajectory failures
+  for (const [convId, turnResults] of sr.perTurnTrajectoryResults) {
+    for (const tr of turnResults) {
+      if (!tr.result.matched) {
+        const details: string[] = []
+        if (tr.result.missingCalls.length > 0)
+          details.push(`missing: ${tr.result.missingCalls.join(', ')}`)
+        if (tr.result.extraCalls.length > 0)
+          details.push(`extra: ${tr.result.extraCalls.join(', ')}`)
+        if (tr.result.forbiddenCalls.length > 0)
+          details.push(`forbidden: ${tr.result.forbiddenCalls.join(', ')}`)
+        lines.push(`  ${convId}: turn ${tr.turnIndex} trajectory failed — ${details.join('; ')}`)
+      }
+    }
+  }
+
   // Metric averages
   const averages = computeMetricAverages(sr.evaluations.values())
   if (Object.keys(averages).length > 0) {

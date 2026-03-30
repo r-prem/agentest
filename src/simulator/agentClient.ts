@@ -1,4 +1,5 @@
 import type { AgentestConfig, CustomAgentHandler } from '../config/schema.js'
+import type { CustomHandlerContext } from '../scenario/types.js'
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant' | 'tool'
@@ -86,6 +87,7 @@ export class AgentClient {
   private requestTimeoutMs: number
   private customHandler?: CustomAgentHandler
   private streaming: boolean
+  private handlerContext?: CustomHandlerContext
 
   constructor(config: AgentestConfig) {
     const agent = config.agent
@@ -109,6 +111,10 @@ export class AgentClient {
     }
 
     this.requestTimeoutMs = config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS
+  }
+
+  setHandlerContext(ctx: CustomHandlerContext): void {
+    this.handlerContext = ctx
   }
 
   private validateEndpoint(endpoint: string): void {
@@ -136,7 +142,7 @@ export class AgentClient {
   }
 
   private async sendCustom(messages: ChatMessage[]): Promise<AgentResponse> {
-    const result = await this.customHandler!(messages)
+    const result = await this.customHandler!(messages, this.handlerContext!)
     const message = result as ChatMessage
 
     if (!message || typeof message.role !== 'string') {

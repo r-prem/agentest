@@ -14,11 +14,13 @@ Define a test scenario for your agent.
 
 ## Required Options
 
+Either `profile` + `goal` (simulated mode) or `turns` (scripted mode) must be provided.
+
 ### `profile`
 
 **Type:** `string`
 
-**Required**
+**Required** for simulated mode. Optional for scripted mode.
 
 Simulated user's personality and context.
 
@@ -26,9 +28,44 @@ Simulated user's personality and context.
 
 **Type:** `string`
 
-**Required**
+**Required** for simulated mode. Optional for scripted mode.
 
-What the user wants to accomplish.
+What the user wants to accomplish. When provided with scripted `turns`, enables LLM-as-judge evaluation.
+
+### `turns`
+
+**Type:** `ScriptedTurn[]`
+
+**Required** for scripted mode.
+
+Scripted conversation turns with predetermined user messages. When provided, the simulated user is skipped entirely and messages are replayed in order.
+
+Each turn can include per-turn trajectory assertions.
+
+```ts
+turns: [
+  {
+    userMessage: 'How fast was vehicle 12345678?',
+    assertions: {
+      toolCalls: {
+        matchMode: 'contains',
+        expected: [{ name: 'performance_agent', argMatchMode: 'ignore' }],
+      },
+    },
+  },
+  {
+    userMessage: 'Export that to CSV',
+    assertions: {
+      toolCalls: {
+        matchMode: 'contains',
+        expected: [{ name: 'export_to_csv', argMatchMode: 'ignore' }],
+      },
+    },
+  },
+]
+```
+
+Defaults: `conversationsPerScenario` defaults to `1` (deterministic). `maxTurns` is set to `turns.length`.
 
 ## Optional Options
 

@@ -11,7 +11,7 @@ A scenario either passes or fails based on multiple criteria. The overall run pa
 A scenario **passes** when all of the following conditions are true:
 
 1. ✅ No conversation threw an error
-2. ✅ All trajectory assertions matched (if configured)
+2. ✅ All trajectory assertions matched (if configured) — both scenario-level cumulative and per-turn
 3. ✅ No errors at or above the configured `failOnErrorSeverity`
 4. ✅ All metric averages meet their configured thresholds
 

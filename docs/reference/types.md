@@ -39,14 +39,26 @@ interface Config {
 
 ```ts
 interface ScenarioOptions {
-  profile: string
-  goal: string
+  // Required for simulated mode, optional for scripted mode
+  profile?: string
+  goal?: string
+
+  // Scripted mode: predetermined user messages with per-turn assertions
+  turns?: ScriptedTurn[]
+
   knowledge?: KnowledgeItem[]
   mocks?: { tools: Record<string, ToolMockFn> }
   assertions?: { toolCalls?: TrajectoryAssertion }
   conversationsPerScenario?: number
   maxTurns?: number
   userPromptTemplate?: string
+}
+
+interface ScriptedTurn {
+  userMessage: string
+  assertions?: {
+    toolCalls?: TrajectoryAssertion
+  }
 }
 
 interface KnowledgeItem {
