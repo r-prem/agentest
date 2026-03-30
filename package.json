@@ -1,6 +1,6 @@
 {
   "name": "@agentesting/agentest",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",
   "main": "./dist/index.js",
@@ -66,7 +66,6 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@agentesting/agentest": "^0.0.2",
     "@ai-sdk/anthropic": "^3.0.64",
     "@ai-sdk/google": "^3.0.53",
     "@ai-sdk/openai": "^3.0.48",
