@@ -35,6 +35,9 @@ features:
   - icon: 🚀
     title: CI-ready CLI
     details: Exit codes, JSON reporter, GitHub Actions annotations, watch mode
+  - icon: 📦
+    title: Framework Demos
+    details: Complete runnable examples for LangChain, Vercel AI SDK, and CrewAI with 24 scenarios each
 ---
 
 ## Quick Start

@@ -94,6 +94,18 @@ Agentest running 1 scenario(s)
 1/1 scenarios passed
 ```
 
+## Try a Demo
+
+Want to see a full working example? The [`demos/`](https://github.com/r-prem/agentest/tree/master/demos) directory has complete, runnable projects:
+
+| Demo | Framework | Integration |
+|------|-----------|-------------|
+| [`langchain-tool-agent`](https://github.com/r-prem/agentest/tree/master/demos/langchain-tool-agent) | LangChain | Custom handler (TypeScript) |
+| [`vercel-ai-agent`](https://github.com/r-prem/agentest/tree/master/demos/vercel-ai-agent) | Vercel AI SDK | Custom handler (TypeScript) |
+| [`crewai-agent`](https://github.com/r-prem/agentest/tree/master/demos/crewai-agent) | CrewAI | HTTP endpoint (Python) |
+
+Each demo includes an agent with 4 tools and 24 scenario files you can run immediately.
+
 ## What's Next?
 
 - Learn [How It Works](/guide/how-it-works) to understand the execution model
