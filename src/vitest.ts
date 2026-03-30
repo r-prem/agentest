@@ -24,7 +24,7 @@ const DEFAULT_TIMEOUT = 120_000
  * Each scenario becomes an individual `it()` test case.
  *
  * ```ts
- * import { defineSimSuite } from 'agentest/vitest'
+ * import { defineSimSuite } from '@agentesting/agentest/vitest'
  *
  * defineSimSuite({
  *   agent: { name: 'my-agent', endpoint: 'http://localhost:3000/api/chat' },
@@ -100,7 +100,7 @@ export function defineSimSuite(
  * than `defineSimSuite` — import your scenario file directly and test it.
  *
  * ```ts
- * import { runScenario } from 'agentest/vitest'
+ * import { runScenario } from '@agentesting/agentest/vitest'
  * import config from '../agentest.config.js'
  * import '../scenarios/booking.sim.js'
  *

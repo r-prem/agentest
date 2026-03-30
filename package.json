@@ -1,6 +1,6 @@
 {
   "name": "@agentesting/agentest",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",
   "main": "./dist/index.js",

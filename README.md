@@ -1230,7 +1230,7 @@ Run Agentest scenarios as vitest tests for IDE integration, `describe`/`it` bloc
 
 ```ts
 // tests/agent.test.ts
-import { defineSimSuite } from 'agentest/vitest'
+import { defineSimSuite } from '@agentesting/agentest/vitest'
 
 defineSimSuite({
   agent: { name: 'my-agent', endpoint: 'http://localhost:3000/api/chat' },
@@ -1264,7 +1264,7 @@ defineSimSuite(config, {
 For more granular control, use `runScenario` to test individual scenarios with custom assertions:
 
 ```ts
-import { runScenario } from 'agentest/vitest'
+import { runScenario } from '@agentesting/agentest/vitest'
 import { expect, it } from 'vitest'
 
 it('booking flow completes the goal', async () => {

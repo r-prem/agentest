@@ -17,7 +17,7 @@ The simplest way to run all scenarios as a vitest test:
 
 ```ts
 // tests/agent.test.ts
-import { defineSimSuite } from 'agentest/vitest'
+import { defineSimSuite } from '@agentesting/agentest/vitest'
 
 defineSimSuite({
   agent: { name: 'my-agent', endpoint: 'http://localhost:3000/api/chat' },
@@ -56,7 +56,7 @@ defineSimSuite(config, {
 For more granular control, use `runScenario` to test individual scenarios with custom assertions:
 
 ```ts
-import { runScenario } from 'agentest/vitest'
+import { runScenario } from '@agentesting/agentest/vitest'
 import { defineConfig } from '@agentesting/agentest'
 import { describe, it, expect } from 'vitest'
 
