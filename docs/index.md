@@ -49,7 +49,7 @@ Create a config file:
 
 ```ts
 // agentest.config.ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -63,7 +63,7 @@ Write a scenario:
 
 ```ts
 // tests/booking.sim.ts
-import { scenario, sequence } from 'agentest'
+import { scenario, sequence } from '@agentesting/agentest'
 
 scenario('user books a morning slot', {
   profile: 'Busy professional who prefers mornings.',

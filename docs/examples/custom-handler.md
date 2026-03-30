@@ -5,7 +5,7 @@ Use a custom handler to test agents without an HTTP endpoint.
 ## In-Process Agent
 
 ```ts
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 import { myAgent } from './src/agent.js'
 
 export default defineConfig({

@@ -14,7 +14,7 @@ Complete API documentation for Agentest.
 ### Core Functions
 
 ```ts
-import { defineConfig, scenario, sequence } from 'agentest'
+import { defineConfig, scenario, sequence } from '@agentesting/agentest'
 ```
 
 ### Types
@@ -25,13 +25,13 @@ import type {
   ScoreInput,
   QuantResult,
   QualResult,
-} from 'agentest'
+} from '@agentesting/agentest'
 ```
 
 ### Base Classes
 
 ```ts
-import { QuantitativeMetric, QualitativeMetric } from 'agentest'
+import { QuantitativeMetric, QualitativeMetric } from '@agentesting/agentest'
 ```
 
 ## Next Steps

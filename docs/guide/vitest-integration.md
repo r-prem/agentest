@@ -57,7 +57,7 @@ For more granular control, use `runScenario` to test individual scenarios with c
 
 ```ts
 import { runScenario } from 'agentest/vitest'
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 import { describe, it, expect } from 'vitest'
 
 const config = defineConfig({

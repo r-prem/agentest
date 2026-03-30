@@ -5,7 +5,7 @@ Test complex scenarios that require multiple interactions.
 ## Example: Multi-step Booking Flow
 
 ```ts
-import { scenario, sequence } from 'agentest'
+import { scenario, sequence } from '@agentesting/agentest'
 
 scenario('user completes multi-step booking with questions', {
   profile: 'Cautious user who asks clarifying questions.',

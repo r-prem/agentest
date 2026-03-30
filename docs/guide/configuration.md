@@ -7,7 +7,7 @@ Complete guide to configuring Agentest.
 Create `agentest.config.ts` (or `agentest.config.yaml`) in your project root. Agentest auto-detects the format.
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   // Configuration options
@@ -155,7 +155,7 @@ data: [DONE]
 Use `type: 'custom'` to connect any agent that doesn't have an OpenAI-compatible HTTP endpoint:
 
 ```ts
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 import { myAgent } from './src/agent.js'
 
 export default defineConfig({
@@ -431,7 +431,7 @@ See [Comparison Mode](/guide/comparison-mode) for examples and output.
 ## Full Config Example
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 import { ToneMetric } from './metrics/tone.js'
 
 export default defineConfig({

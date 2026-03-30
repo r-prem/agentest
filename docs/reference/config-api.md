@@ -5,7 +5,7 @@ Complete reference for `defineConfig()` and all configuration options.
 ## `defineConfig()`
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   // options

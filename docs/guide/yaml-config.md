@@ -180,7 +180,7 @@ For custom handlers, use a TypeScript config:
 
 ```ts
 // agentest.config.ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 import { myAgent } from './src/agent.js'
 
 export default defineConfig({

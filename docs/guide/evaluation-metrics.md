@@ -356,7 +356,7 @@ See [Custom Metrics Guide](/guide/custom-metrics) for complete documentation.
 Quick example:
 
 ```ts
-import { QuantitativeMetric, type ScoreInput, type QuantResult } from 'agentest'
+import { QuantitativeMetric, type ScoreInput, type QuantResult } from '@agentesting/agentest'
 
 export class ToneMetric extends QuantitativeMetric {
   readonly name = 'tone'

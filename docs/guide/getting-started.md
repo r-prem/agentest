@@ -21,7 +21,7 @@ Create `agentest.config.ts` in your project root:
 
 ```ts
 // agentest.config.ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -37,7 +37,7 @@ Create a test file with the `.sim.ts` extension:
 
 ```ts
 // tests/booking.sim.ts
-import { scenario, sequence } from 'agentest'
+import { scenario, sequence } from '@agentesting/agentest'
 
 scenario('user books a morning slot', {
   profile: 'Busy professional who prefers mornings.',

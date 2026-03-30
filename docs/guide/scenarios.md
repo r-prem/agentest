@@ -5,7 +5,7 @@ Learn how to define test scenarios for your agent.
 ## Basic Structure
 
 ```ts
-import { scenario } from 'agentest'
+import { scenario } from '@agentesting/agentest'
 
 scenario('descriptive name', {
   profile: 'User personality and context',
@@ -295,7 +295,7 @@ Scenario files can contain multiple `scenario()` calls:
 
 ```ts
 // tests/booking.sim.ts
-import { scenario } from 'agentest'
+import { scenario } from '@agentesting/agentest'
 
 scenario('user books morning slot', {
   profile: 'Early riser who prefers mornings.',

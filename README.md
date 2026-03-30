@@ -154,7 +154,7 @@ npm install @agentesting/agentest --save-dev
 
 ```ts
 // agentest.config.ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -168,7 +168,7 @@ export default defineConfig({
 
 ```ts
 // tests/booking.sim.ts
-import { scenario, sequence } from 'agentest'
+import { scenario, sequence } from '@agentesting/agentest'
 
 scenario('user books a morning slot', {
   profile: 'Busy professional who prefers mornings.',
@@ -256,7 +256,7 @@ Agentest owns the tool-call loop. It intercepts tool calls from the agent respon
 Create `agentest.config.ts` (or `agentest.config.yaml`) in your project root. Agentest auto-detects the format. You can also pass a custom path with `--config`.
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   // ... options
@@ -315,7 +315,7 @@ agent: {
 Use `type: 'custom'` to connect any agent — no HTTP endpoint or OpenAI-compatible API required. You provide a function that receives messages and returns a response:
 
 ```ts
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 import { myAgent } from './src/agent.js'
 
 export default defineConfig({
@@ -458,7 +458,7 @@ Controls what happens when the agent calls a tool that has no mock defined. See 
 ### Full Config Example
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -514,7 +514,7 @@ export default defineConfig({
 A scenario defines **who** the simulated user is, **what** they want, **what they know**, and **how tools behave**.
 
 ```ts
-import { scenario } from 'agentest'
+import { scenario } from '@agentesting/agentest'
 
 scenario('descriptive name', {
   profile: '...',
@@ -648,7 +648,7 @@ mocks: {
 `sequence()` returns different values on successive calls. Useful for testing multi-step workflows:
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 mocks: {
   tools: {
@@ -827,7 +827,7 @@ Each error has a severity (`low`, `medium`, `high`, `critical`). By default, onl
 Extend `QuantitativeMetric` or `QualitativeMetric` to add your own evaluation logic:
 
 ```ts
-import { QuantitativeMetric, type ScoreInput, type QuantResult } from 'agentest'
+import { QuantitativeMetric, type ScoreInput, type QuantResult } from '@agentesting/agentest'
 
 export class ToneMetric extends QuantitativeMetric {
   readonly name = 'tone'
@@ -856,7 +856,7 @@ export class ToneMetric extends QuantitativeMetric {
 For qualitative (label-based) metrics:
 
 ```ts
-import { QualitativeMetric, type ScoreInput, type QualResult } from 'agentest'
+import { QualitativeMetric, type ScoreInput, type QualResult } from '@agentesting/agentest'
 
 export class BrandVoiceMetric extends QualitativeMetric {
   readonly name = 'brand_voice'
@@ -1090,7 +1090,7 @@ If your agent already exposes an OpenAI-compatible chat completions endpoint, po
 
 ```ts
 import { ChatOpenAI } from '@langchain/openai'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const model = new ChatOpenAI({ model: 'gpt-4o' })
 
@@ -1114,7 +1114,7 @@ For LangGraph agents, call `graph.invoke()` in the handler and map the final sta
 
 ```ts
 import Anthropic from '@anthropic-ai/sdk'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const client = new Anthropic()
 
@@ -1143,7 +1143,7 @@ export default defineConfig({
 ```ts
 import { generateText } from 'ai'
 import { openai } from '@ai-sdk/openai'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -1197,7 +1197,7 @@ This pattern works for **any** Python framework — CrewAI, AutoGen/AG2, LlamaIn
 
 ```ts
 import { Agent } from '@mastra/core/agent'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const agent = new Agent({ /* your config */ })
 
@@ -1400,7 +1400,7 @@ import {
   Evaluator,
   TrajectoryMatcher,
   createProvider,
-} from 'agentest'
+} from '@agentesting/agentest'
 
 const config = defineConfig({
   agent: { name: 'test', endpoint: 'http://localhost:3000/api/chat' },

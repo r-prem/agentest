@@ -5,7 +5,7 @@ Test how your agent handles tool failures and errors.
 ## Scenario: Flaky API
 
 ```ts
-import { scenario, sequence } from 'agentest'
+import { scenario, sequence } from '@agentesting/agentest'
 
 scenario('user books appointment with flaky API', {
   profile: 'Patient user willing to wait.',

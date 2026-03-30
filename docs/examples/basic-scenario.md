@@ -21,7 +21,7 @@ We want to verify that the agent can successfully book a morning slot for a user
 
 ```ts
 // tests/booking.sim.ts
-import { scenario, sequence } from 'agentest'
+import { scenario, sequence } from '@agentesting/agentest'
 
 scenario('user books a morning slot', {
   // Define the simulated user's personality and communication style
@@ -91,7 +91,7 @@ scenario('user books a morning slot', {
 Create `agentest.config.ts`:
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {

@@ -34,7 +34,7 @@ Agentest POSTs `{ messages: [...] }` and expects `{ choices: [{ message: { conte
 For agents that don't expose an OpenAI-compatible endpoint, use `type: 'custom'` with a handler function:
 
 ```ts
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -62,7 +62,7 @@ The handler receives the full message history and must return an assistant messa
 
 ```ts
 import { ChatOpenAI } from '@langchain/openai'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const model = new ChatOpenAI({ model: 'gpt-4o' })
 
@@ -84,7 +84,7 @@ For LangGraph agents, call `graph.invoke()` in the handler and map the final sta
 
 ```ts
 import { StateGraph } from '@langchain/langgraph'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const graph = new StateGraph({ /* your graph definition */ })
 const app = graph.compile()
@@ -108,7 +108,7 @@ export default defineConfig({
 
 ```ts
 import Anthropic from '@anthropic-ai/sdk'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const client = new Anthropic()
 
@@ -141,7 +141,7 @@ export default defineConfig({
 ```ts
 import { generateText } from 'ai'
 import { openai } from '@ai-sdk/openai'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 export default defineConfig({
   agent: {
@@ -162,7 +162,7 @@ export default defineConfig({
 
 ```ts
 import { Agent } from '@mastra/core/agent'
-import { defineConfig, type ChatMessage } from 'agentest'
+import { defineConfig, type ChatMessage } from '@agentesting/agentest'
 
 const agent = new Agent({ /* your config */ })
 

@@ -5,7 +5,7 @@ Complete reference for `scenario()` and scenario options.
 ## `scenario()`
 
 ```ts
-import { scenario } from 'agentest'
+import { scenario } from '@agentesting/agentest'
 
 scenario(name: string, options: ScenarioOptions)
 ```
@@ -111,7 +111,7 @@ Custom simulated user prompt template.
 ### `sequence()`
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 const mock = sequence([value1, value2, value3])
 ```

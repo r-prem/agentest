@@ -16,7 +16,7 @@ Both have access to the full conversation context and the configured LLM provide
 Extend `QuantitativeMetric` and implement the `score()` method:
 
 ```ts
-import { QuantitativeMetric, type ScoreInput, type QuantResult } from 'agentest'
+import { QuantitativeMetric, type ScoreInput, type QuantResult } from '@agentesting/agentest'
 import { z } from 'zod'
 
 export class ToneMetric extends QuantitativeMetric {
@@ -119,7 +119,7 @@ export class BookingConfirmedMetric extends QuantitativeMetric {
 Extend `QualitativeMetric` and implement the `evaluate()` method. Qualitative metrics return categorical labels instead of numbers.
 
 ```ts
-import { QualitativeMetric, type ScoreInput, type QualResult } from 'agentest'
+import { QualitativeMetric, type ScoreInput, type QualResult } from '@agentesting/agentest'
 import { z } from 'zod'
 
 export class BrandVoiceMetric extends QualitativeMetric {
@@ -158,7 +158,7 @@ Qualitative metric labels participate in **error deduplication**. If `brand_voic
 Add custom metrics to your config:
 
 ```ts
-import { defineConfig } from 'agentest'
+import { defineConfig } from '@agentesting/agentest'
 import { ToneMetric } from './metrics/tone.js'
 import { BrandVoiceMetric } from './metrics/brand-voice.js'
 import { BookingConfirmedMetric } from './metrics/booking.js'

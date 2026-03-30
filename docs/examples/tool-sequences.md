@@ -5,7 +5,7 @@ Advanced mocking with sequences and stateful behavior.
 ## Basic Sequence
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 scenario('inventory depletes over time', {
   profile: 'Customer buying multiple items.',
@@ -48,7 +48,7 @@ mocks: {
 ## Conditional Sequences
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 mocks: {
   tools: {
@@ -101,7 +101,7 @@ mock()  // → { value: 3 }  (repeats)
 ## Combining Function and Sequence Mocks
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 mocks: {
   tools: {

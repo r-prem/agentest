@@ -9,7 +9,7 @@ API reference for custom metrics.
 Base class for numeric metrics (1-5 scale).
 
 ```ts
-import { QuantitativeMetric, type ScoreInput, type QuantResult } from 'agentest'
+import { QuantitativeMetric, type ScoreInput, type QuantResult } from '@agentesting/agentest'
 
 export class MyMetric extends QuantitativeMetric {
   readonly name = 'my_metric'
@@ -25,7 +25,7 @@ export class MyMetric extends QuantitativeMetric {
 Base class for categorical metrics.
 
 ```ts
-import { QualitativeMetric, type ScoreInput, type QualResult } from 'agentest'
+import { QualitativeMetric, type ScoreInput, type QualResult } from '@agentesting/agentest'
 
 export class MyMetric extends QualitativeMetric {
   readonly name = 'my_metric'

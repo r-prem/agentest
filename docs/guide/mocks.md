@@ -162,7 +162,7 @@ mocks: {
 Use `sequence()` to return different values on successive calls. This is perfect for testing multi-step workflows.
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 mocks: {
   tools: {
@@ -456,7 +456,7 @@ mocks: {
 You can't use both directly, but you can wrap a sequence in a function:
 
 ```ts
-import { sequence } from 'agentest'
+import { sequence } from '@agentesting/agentest'
 
 const statusSequence = sequence(['pending', 'processing', 'complete'])
 
