@@ -37,10 +37,7 @@ const chatMessageSchema = z.object({
 const customAgentSchema = z.object({
   type: z.literal('custom'),
   name: z.string(),
-  handler: z
-    .function()
-    .args(z.array(chatMessageSchema))
-    .returns(z.promise(chatMessageSchema)),
+  handler: z.function().args(z.array(chatMessageSchema)).returns(z.promise(chatMessageSchema)),
 })
 
 export const agentConfigSchema = z.preprocess(
