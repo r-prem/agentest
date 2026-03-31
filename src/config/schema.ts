@@ -109,6 +109,7 @@ export const thresholdsSchema = z
 
 export const configSchema = z.object({
   agent: agentConfigSchema,
+  agents: z.record(agentConfigSchema).optional(),
 
   model: z.string().default(DEFAULT_MODEL),
   provider: z

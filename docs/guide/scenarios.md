@@ -419,6 +419,29 @@ When the agent internally calls `get_report_data`, the mock client calls `ctx.re
 
 This gives you full control over tool responses while testing the actual routing logic of your supervisor.
 
+## Targeting Named Agents
+
+When your config defines [named agents](/guide/configuration#named-agents), scenarios can target a specific agent with the `agent` option:
+
+```ts
+// Uses the default agent
+scenario('supervisor routes to performance', {
+  turns: [
+    { userMessage: 'How fast was vehicle 12345678 last week?' },
+  ],
+})
+
+// Targets the "failure" named agent
+scenario('failure agent calls export_to_csv', {
+  agent: 'failure',
+  turns: [
+    { userMessage: 'Export the failure log to CSV' },
+  ],
+})
+```
+
+This is useful for multi-agent architectures where you want to test both routing (at the supervisor level) and inner tool usage (at the domain agent level) in the same test suite.
+
 ## Complete Example
 
 See [Basic Scenario Example](/examples/basic-scenario) for a full walkthrough.

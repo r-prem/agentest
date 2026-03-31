@@ -31,6 +31,7 @@ npm install @agentesting/agentest --save-dev
 | LLM-as-judge metrics | Helpfulness, coherence, relevance, faithfulness, goal completion, behavior failure detection |
 | Comparison mode | Run the same scenarios against multiple models/configs side-by-side |
 | CI-ready CLI | Exit codes, JSON reporter, GitHub Actions annotations, watch mode |
+| Named agents | Define multiple agents (supervisor + domain) and target them per-scenario |
 | Custom handler | Bring any agent — HTTP endpoint or in-process function. Works with any framework |
 
 ---
@@ -1019,6 +1020,57 @@ reporters:
 YAML configs go through the same validation and environment variable interpolation as TypeScript configs. The only difference is that `type: 'custom'` agents with handler functions are not possible in YAML (since YAML can't express functions) — use TypeScript for those.
 
 **Auto-detection order:** `agentest.config.ts` → `agentest.config.yaml` → `agentest.config.yml`
+
+---
+
+## Named Agents
+
+For multi-agent architectures, define multiple named agents and target them per-scenario. This lets you test both high-level routing (supervisor) and low-level tool usage (domain agents) in one test suite.
+
+```ts
+export default defineConfig({
+  // Default agent — used when scenario doesn't specify one
+  agent: {
+    type: 'custom',
+    name: 'supervisor',
+    handler: supervisorHandler,
+  },
+
+  // Additional named agents
+  agents: {
+    performance: { type: 'custom', name: 'performance-agent', handler: performanceHandler },
+    failure: { type: 'custom', name: 'failure-agent', handler: failureHandler },
+  },
+})
+```
+
+Scenarios reference a named agent with the `agent` option:
+
+```ts
+// Uses the default agent (supervisor)
+scenario('routes speed query correctly', {
+  turns: [{ userMessage: 'How fast was vehicle 12345678?' }],
+  assertions: { toolCalls: { matchMode: 'contains', expected: [{ name: 'performance_agent' }] } },
+})
+
+// Targets the "failure" named agent directly
+scenario('failure agent exports to CSV', {
+  agent: 'failure',
+  turns: [{ userMessage: 'Export the failure log to CSV' }],
+  assertions: {
+    toolCalls: {
+      matchMode: 'contains',
+      expected: [{ name: 'get_failure_log' }, { name: 'export_to_csv' }],
+    },
+  },
+  mocks: {
+    tools: {
+      get_failure_log: () => ({ failures: [] }),
+      export_to_csv: () => ({ fileId: 'abc', url: '/download/abc' }),
+    },
+  },
+})
+```
 
 ---
 

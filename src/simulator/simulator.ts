@@ -74,9 +74,26 @@ export class Simulator {
       (isScripted ? 1 : this.config.conversationsPerScenario)
     const conversations: ConversationRecord[] = []
 
+    // Resolve per-scenario agent override
+    let agentClient = this.agentClient
+    if (scenario.options.agent) {
+      const namedAgent = this.config.agents?.[scenario.options.agent]
+      if (!namedAgent) {
+        throw new Error(
+          `Scenario "${scenario.name}" references agent "${scenario.options.agent}" ` +
+            `but no such agent was found in config.agents. ` +
+            `Available agents: ${this.config.agents ? Object.keys(this.config.agents).join(', ') : '(none)'}`,
+        )
+      }
+      agentClient = new AgentClient({
+        ...this.config,
+        agent: namedAgent,
+      })
+    }
+
     for (let i = 0; i < conversationCount; i++) {
       const conversationId = `conv-${i + 1}-${randomUUID().slice(0, 8)}`
-      const record = await this.runConversation(scenario, conversationId)
+      const record = await this.runConversation(scenario, conversationId, agentClient)
       conversations.push(record)
     }
 
@@ -86,6 +103,7 @@ export class Simulator {
   private async runConversation(
     scenario: Scenario,
     conversationId: string,
+    agentClient?: AgentClient,
   ): Promise<ConversationRecord> {
     const isScripted = Array.isArray(scenario.options.turns) && scenario.options.turns.length > 0
     const scriptedTurns = scenario.options.turns
@@ -101,6 +119,7 @@ export class Simulator {
     )
     mockResolver.reset()
 
+    const client = agentClient ?? this.agentClient
     const conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
     const agentMessages: ChatMessage[] = []
     const turns: TurnRecord[] = []
@@ -152,7 +171,7 @@ export class Simulator {
           conversationId,
           scenarioName: scenario.name,
         }
-        this.agentClient.setHandlerContext(handlerCtx)
+        client.setHandlerContext(handlerCtx)
 
         this.onProgress?.({
           scenario: scenario.name,
@@ -163,7 +182,7 @@ export class Simulator {
         })
         const MAX_TOOL_CALL_ROUNDS = 50
         let toolCallRound = 0
-        let response = await this.agentClient.send(agentMessages)
+        let response = await client.send(agentMessages)
 
         // Tool call loop — keep going until agent returns text without tool calls
         while (response.hasToolCalls) {
@@ -194,7 +213,7 @@ export class Simulator {
           }
 
           // Send back to agent with tool results
-          response = await this.agentClient.send(agentMessages)
+          response = await client.send(agentMessages)
         }
 
         // Agent returned a text response (no tool calls)

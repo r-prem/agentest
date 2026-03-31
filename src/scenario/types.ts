@@ -37,6 +37,9 @@ export interface ScriptedTurn {
 }
 
 export interface ScenarioOptions {
+  /** Named agent key from config.agents to use instead of the default agent. */
+  agent?: string
+
   profile?: string
   goal?: string
   knowledge?: KnowledgeItem[]
@@ -58,6 +61,12 @@ export interface ScenarioOptions {
 }
 
 export function validateScenarioOptions(options: ScenarioOptions): void {
+  if (options.agent !== undefined) {
+    if (typeof options.agent !== 'string' || !options.agent.trim()) {
+      throw new Error('Scenario "agent" must be a non-empty string referencing a named agent')
+    }
+  }
+
   const isScripted = Array.isArray(options.turns)
 
   if (isScripted) {
