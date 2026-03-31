@@ -1,6 +1,6 @@
 {
   "name": "@agentesting/agentest",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -8,20 +8,30 @@
   "files": [
     "dist"
   ],
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.cts",
   "bin": {
     "agentest": "./dist/cli.js"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./vitest": {
-      "types": "./dist/vitest.d.ts",
-      "import": "./dist/vitest.js",
-      "require": "./dist/vitest.cjs"
+      "import": {
+        "types": "./dist/vitest.d.ts",
+        "default": "./dist/vitest.js"
+      },
+      "require": {
+        "types": "./dist/vitest.d.cts",
+        "default": "./dist/vitest.cjs"
+      }
     }
   },
   "peerDependencies": {
