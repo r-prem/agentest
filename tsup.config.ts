@@ -21,7 +21,6 @@ export default defineConfig([
     entry: { cli: 'src/cli.ts' },
     format: ['esm'],
     sourcemap: true,
-    banner: { js: '#!/usr/bin/env node' },
     outDir: 'dist',
   },
 ])
