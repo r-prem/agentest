@@ -1,6 +1,6 @@
 {
   "name": "@agentesting/agentest",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Embedded agent simulation & evaluation framework for Node.js/TypeScript",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -10,7 +10,7 @@
   ],
   "types": "./dist/index.d.cts",
   "bin": {
-    "agentest": "./dist/cli.js"
+    "agentest": "dist/cli.js"
   },
   "exports": {
     ".": {

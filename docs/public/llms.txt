@@ -10,6 +10,7 @@ Agentest is an embedded agent simulation and evaluation framework for Node.js/Ty
 - **Tool-call mocks**: Intercept and control tool calls with functions, sequences, and error simulation
 - **Trajectory assertions**: Verify tool call order and arguments with strict, contains, unordered, and within match modes
 - **LLM-as-judge metrics**: Helpfulness, coherence, relevance, faithfulness, goal completion, behavior failure detection (8 built-in metrics + custom)
+- **Named agents**: Define multiple agents (supervisor + domain) and target them per-scenario for multi-agent architectures
 - **Comparison mode**: Run the same scenarios against multiple models/configs side-by-side
 - **CI-ready CLI**: Exit codes, JSON reporter, GitHub Actions annotations, watch mode
 - **Custom handler**: Bring any agent — HTTP endpoint or in-process function. Works with any framework

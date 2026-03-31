@@ -405,6 +405,92 @@ unmockedTools: 'passthrough', // return undefined (no-op)
 
 See [Mocks Guide](/guide/mocks) for more details.
 
+## Named Agents
+
+For multi-agent architectures, you can define multiple named agents and target them from individual scenarios. This lets you test both high-level routing (supervisor) and low-level tool usage (domain agents) in the same test suite.
+
+```ts
+export default defineConfig({
+  // Default agent — used when scenario doesn't specify one
+  agent: {
+    type: 'custom',
+    name: 'supervisor',
+    handler: supervisorHandler,
+  },
+
+  // Additional named agents
+  agents: {
+    performance: {
+      type: 'custom',
+      name: 'performance-agent',
+      handler: performanceHandler,
+    },
+    failure: {
+      type: 'custom',
+      name: 'failure-agent',
+      handler: failureHandler,
+    },
+  },
+})
+```
+
+Scenarios reference a named agent with the `agent` option:
+
+```ts
+// Uses the default agent (supervisor)
+scenario('routes speed queries to performance agent', {
+  turns: [{ userMessage: 'How fast was vehicle 12345678?' }],
+  assertions: {
+    toolCalls: {
+      matchMode: 'contains',
+      expected: [{ name: 'performance_agent' }],
+    },
+  },
+})
+
+// Uses the named "failure" agent directly
+scenario('failure agent exports to CSV', {
+  agent: 'failure',
+  turns: [{ userMessage: 'Export the failure log to CSV' }],
+  assertions: {
+    toolCalls: {
+      matchMode: 'contains',
+      expected: [
+        { name: 'get_failure_log', argMatchMode: 'ignore' },
+        { name: 'export_to_csv', argMatchMode: 'ignore' },
+      ],
+    },
+  },
+  mocks: {
+    tools: {
+      get_failure_log: () => ({ failures: [...] }),
+      export_to_csv: () => ({ fileId: 'abc', url: '...' }),
+    },
+  },
+})
+```
+
+### When to Use Named Agents
+
+Named agents are ideal for **multi-agent architectures** where a supervisor routes to specialized sub-agents:
+
+- **Supervisor scenarios** (default agent): Test routing — does the right domain agent get called with the right parameters?
+- **Domain agent scenarios** (named agents): Test reasoning within a domain — does the agent call the right inner tools? Does it handle edge cases?
+
+This separation keeps tests focused and fast. Supervisor tests mock domain agents as black boxes. Domain tests mock only the data-fetching tools underneath.
+
+Named agents also work with HTTP endpoints — you can define different endpoints or headers per agent:
+
+```ts
+agents: {
+  staging: {
+    name: 'staging-api',
+    endpoint: 'https://staging.example.com/api/chat',
+    headers: { Authorization: 'Bearer ${STAGING_KEY}' },
+  },
+}
+```
+
 ## Comparison Mode
 
 Run the same scenarios against multiple models or agent configurations side-by-side:

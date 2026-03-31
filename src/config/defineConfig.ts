@@ -29,6 +29,19 @@ export function defineConfig(input: AgentestConfigInput): AgentestConfig {
     result.agent = { ...result.agent, headers: interpolateEnvVars(result.agent.headers) }
   }
 
+  // Interpolate env vars in named agent headers
+  if (result.agents) {
+    const interpolated: typeof result.agents = {}
+    for (const [key, agent] of Object.entries(result.agents)) {
+      if (agent.type !== 'custom' && agent.headers) {
+        interpolated[key] = { ...agent, headers: interpolateEnvVars(agent.headers) }
+      } else {
+        interpolated[key] = agent
+      }
+    }
+    result.agents = interpolated
+  }
+
   // Interpolate env vars in compare entry headers
   if (result.compare) {
     result.compare = result.compare.map((entry) =>

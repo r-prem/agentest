@@ -16,3 +16,5 @@ demos/**/.env
 demos/**/__pycache__/
 demos/**/*.pyc
 demos/**/.venv/
+
+agentesting-agentest-*
