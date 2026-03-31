@@ -126,6 +126,7 @@ export const configSchema = z.object({
   maxTurns: z.number().int().positive().default(8),
   requestTimeoutMs: z.number().int().min(1000).max(300_000).default(30_000),
   concurrency: z.number().int().min(1).max(100).default(20),
+  debounceMs: z.number().int().min(0).max(300_000).default(0),
 
   metrics: z
     .array(
