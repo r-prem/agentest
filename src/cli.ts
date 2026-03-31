@@ -223,7 +223,9 @@ async function loadConfig(configPath: string, cwd: string): Promise<AgentestConf
       return defineConfig(raw)
     }
 
-    const jiti = createJiti(import.meta.url, { interopDefault: true })
+    const { readTsconfigAliases } = await import('./runner/discovery.js')
+    const alias = readTsconfigAliases(cwd)
+    const jiti = createJiti(import.meta.url, { interopDefault: true, alias })
     const mod = (await jiti.import(absPath)) as {
       default?: AgentestConfig | AgentestConfigInput
     } & (AgentestConfig | AgentestConfigInput)
