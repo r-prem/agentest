@@ -444,6 +444,7 @@ providerOptions: {
 conversationsPerScenario: 3,  // run 3 independent conversations per scenario
 maxTurns: 8,                  // max user↔agent exchanges per conversation
 concurrency: 20,              // max parallel LLM calls across all scenarios
+debounceMs: 0,                // optional delay (ms) between scenario starts
 ```
 
 | Option | Type | Default | Description |
@@ -451,6 +452,7 @@ concurrency: 20,              // max parallel LLM calls across all scenarios
 | `conversationsPerScenario` | `number` | `3` | How many independent conversations to run per scenario. More conversations = more statistical confidence, but more LLM cost |
 | `maxTurns` | `number` | `8` | Upper bound on user↔agent exchanges. The simulated user can stop earlier if the goal is met |
 | `concurrency` | `number` | `20` | Max parallel LLM calls. Controls both simulation and evaluation parallelism. Lower this if you're hitting rate limits |
+| `debounceMs` | `number` | `0` | Minimum delay in milliseconds between scenario starts. Useful for avoiding rate limits when running many scenarios |
 
 Both `conversationsPerScenario` and `maxTurns` can be overridden per-scenario.
 
@@ -959,6 +961,9 @@ npx agentest run --cwd ./packages/my-agent
 # Filter scenarios by name (case-insensitive substring match)
 npx agentest run --scenario "booking"
 npx agentest run --scenario "cancel"
+
+# Filter by file path (case-insensitive substring match)
+npx agentest run --file "auth.sim.ts"
 
 # Print full conversation transcripts
 npx agentest run --verbose

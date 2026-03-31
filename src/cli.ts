@@ -33,6 +33,7 @@ program
   .option('-c, --config <path>', 'Path to config file')
   .option('--cwd <dir>', 'Working directory', process.cwd())
   .option('--scenario <name>', 'Run only scenarios matching this name')
+  .option('--file <path>', 'Run only scenarios from files matching this path')
   .option('--verbose', 'Print full conversation transcripts')
   .option('-w, --watch', 'Watch for file changes and re-run')
   .action(
@@ -40,6 +41,7 @@ program
       config?: string
       cwd: string
       scenario?: string
+      file?: string
       verbose?: boolean
       watch?: boolean
     }) => {
@@ -47,7 +49,13 @@ program
 
       const executeRun = async () => {
         const config = await loadConfig(configPath, opts.cwd)
-        const discoveries = await discoverAndLoad(config, opts.cwd)
+        let discoveries = await discoverAndLoad(config, opts.cwd)
+
+        // Filter by file path if specified
+        if (opts.file) {
+          const fileFilter = opts.file.toLowerCase()
+          discoveries = discoveries.filter((d) => d.file.toLowerCase().includes(fileFilter))
+        }
 
         // Filter by scenario name if specified
         if (opts.scenario) {

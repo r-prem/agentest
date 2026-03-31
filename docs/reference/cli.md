@@ -19,6 +19,7 @@ npx agentest run [options]
 | `--config <path>` | `-c` | Path to config file (default: auto-detect) |
 | `--cwd <path>` | | Working directory (default: current directory) |
 | `--scenario <name>` | `-s` | Filter scenarios by name (case-insensitive substring match) |
+| `--file <path>` | | Filter scenarios by file path (case-insensitive substring match) |
 | `--verbose` | `-v` | Print full conversation transcripts |
 | `--watch` | `-w` | Watch mode — re-run on file changes |
 
@@ -39,6 +40,10 @@ npx agentest run --cwd ./packages/my-agent
 npx agentest run --scenario "booking"
 npx agentest run --scenario "cancel"
 
+# Filter by file path
+npx agentest run --file "auth.sim.ts"
+npx agentest run --file "booking"
+
 # Print full conversation transcripts
 npx agentest run --verbose
 
@@ -48,6 +53,9 @@ npx agentest run -w
 
 # Combine flags
 npx agentest run --watch --verbose --scenario "booking"
+
+# Combine file and scenario filters
+npx agentest run --file "auth" --scenario "login"
 ```
 
 ### `agentest show-prompts`
