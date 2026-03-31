@@ -60,11 +60,22 @@ export class Runner {
   private config: AgentestConfig
   private reporters: Reporter[]
   private limit: ReturnType<typeof pLimit>
+  private lastScenarioStartTime = 0
 
   constructor(config: AgentestConfig, reporters: Reporter[]) {
     this.config = config
     this.reporters = reporters
     this.limit = pLimit(config.concurrency)
+  }
+
+  private async debounce(): Promise<void> {
+    if (this.config.debounceMs <= 0) return
+    const elapsed = Date.now() - this.lastScenarioStartTime
+    const remaining = this.config.debounceMs - elapsed
+    if (remaining > 0) {
+      await new Promise((resolve) => setTimeout(resolve, remaining))
+    }
+    this.lastScenarioStartTime = Date.now()
   }
 
   private async createInfrastructure() {
@@ -105,9 +116,10 @@ export class Runner {
     // Run all scenarios in parallel (bounded by concurrency)
     const scenarioResults = await Promise.all(
       allScenarios.map((scenario) =>
-        this.limit(() =>
-          this.runScenario(scenario, simulator, evaluator, trajectoryMatcher, errorDetection),
-        ),
+        this.limit(async () => {
+          await this.debounce()
+          return this.runScenario(scenario, simulator, evaluator, trajectoryMatcher, errorDetection)
+        }),
       ),
     )
 
@@ -210,6 +222,8 @@ export class Runner {
     }
 
     for (const scenario of allScenarios) {
+      await this.debounce()
+
       // Run all agents in parallel for this scenario
       const agentResults = await Promise.all(
         agentNames.map((agentName) =>
