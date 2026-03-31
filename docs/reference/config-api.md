@@ -110,6 +110,14 @@ Maximum turns per conversation.
 
 Max parallel LLM calls.
 
+### `debounceMs`
+
+**Type:** `number`
+
+**Default:** `0`
+
+Minimum delay in milliseconds between scenario starts. Set this to avoid rate limits when running many scenarios (e.g., `debounceMs: 2000` for a 2-second gap).
+
 ## Evaluation
 
 ### `metrics`
