@@ -128,26 +128,26 @@ This is ideal for testing **context carry-forward**, **conversation continuity**
 ```ts
 import { scenario } from '@agentesting/agentest'
 
-scenario('follow-up reuses vehicle context', {
+scenario('follow-up reuses order context', {
   turns: [
     {
-      userMessage: 'How fast was Leo (12345678) last week?',
+      userMessage: 'What is the status of order ORD-42?',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
           expected: [
-            { name: 'performance_agent', args: { serials: '12345678' }, argMatchMode: 'partial' },
+            { name: 'get_order', args: { id: 'ORD-42' }, argMatchMode: 'partial' },
           ],
         },
       },
     },
     {
-      userMessage: 'And what about its failure count in the same period?',
+      userMessage: 'And what are the shipping details for that order?',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
           expected: [
-            { name: 'failure_agent', args: { serials: '12345678' }, argMatchMode: 'partial' },
+            { name: 'get_shipping', args: { orderId: 'ORD-42' }, argMatchMode: 'partial' },
           ],
         },
       },
@@ -156,14 +156,14 @@ scenario('follow-up reuses vehicle context', {
 
   mocks: {
     tools: {
-      performance_agent: () => ({ speed: 0.8, unit: 'm/s' }),
-      failure_agent: () => ({ count: 5, severity_breakdown: { warning: 3, error: 2 } }),
+      get_order: () => ({ status: 'shipped', items: 3, total: 89.99 }),
+      get_shipping: () => ({ carrier: 'FedEx', eta: '2024-03-15', trackingId: 'FX-99887' }),
     },
   },
 })
 ```
 
-The second turn says "its failure count" — the agent must carry forward that "it" refers to vehicle `12345678` from the previous turn. The per-turn assertion verifies this.
+The second turn says "that order" — the agent must carry forward that it refers to order `ORD-42` from the previous turn. The per-turn assertion verifies this.
 
 ### Example: Domain Switch with Follow-up Export
 
@@ -171,21 +171,21 @@ The second turn says "its failure count" — the agent must carry forward that "
 scenario('cross-domain pivot then export', {
   turns: [
     {
-      userMessage: 'What was the energy consumption of Leo (12345678) from Jan 1 to Jan 7?',
+      userMessage: 'Show me the sales for product SKU-200 from Jan 1 to Jan 7.',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
-          expected: [{ name: 'performance_agent', argMatchMode: 'ignore' }],
+          expected: [{ name: 'get_sales', argMatchMode: 'ignore' }],
         },
       },
     },
     {
-      userMessage: 'Were there any errors during that period?',
+      userMessage: 'Were there any returns during that period?',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
           expected: [
-            { name: 'failure_agent', args: { serials: '12345678' }, argMatchMode: 'partial' },
+            { name: 'get_returns', args: { productId: 'SKU-200' }, argMatchMode: 'partial' },
           ],
         },
       },
@@ -203,8 +203,8 @@ scenario('cross-domain pivot then export', {
 
   mocks: {
     tools: {
-      performance_agent: () => ({ energy: 12.4, unit: 'kWh' }),
-      failure_agent: () => ({ count: 3 }),
+      get_sales: () => ({ units: 124, revenue: 4960.00 }),
+      get_returns: () => ({ count: 3, refunded: 120.00 }),
       export_to_csv: () => ({ fileId: 'export-001', url: '/download/export-001' }),
     },
   },
@@ -228,17 +228,17 @@ To enable LLM-as-judge evaluation on scripted scenarios, provide a `goal`:
 
 ```ts
 scenario('follow-up with quality evaluation', {
-  goal: 'Get speed and failure data for vehicle Leo.',
+  goal: 'Get order status and shipping details for order ORD-42.',
 
   turns: [
-    { userMessage: 'How fast was Leo (12345678) last week?' },
-    { userMessage: 'And what about its failure count?' },
+    { userMessage: 'What is the status of order ORD-42?' },
+    { userMessage: 'And what are the shipping details?' },
   ],
 
   mocks: {
     tools: {
-      performance_agent: () => ({ speed: 0.8 }),
-      failure_agent: () => ({ count: 5 }),
+      get_order: () => ({ status: 'shipped', items: 3 }),
+      get_shipping: () => ({ carrier: 'FedEx', eta: '2024-03-15' }),
     },
   },
 })

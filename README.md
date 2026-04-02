@@ -215,31 +215,31 @@ For deterministic tests with predetermined user messages and per-turn assertions
 // tests/context.sim.ts
 import { scenario } from '@agentesting/agentest'
 
-scenario('follow-up reuses vehicle context', {
+scenario('follow-up reuses order context', {
   turns: [
     {
-      userMessage: 'How fast was Leo (12345678) last week?',
+      userMessage: 'What is the status of order ORD-42?',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
-          expected: [{ name: 'get_speed', args: { id: '12345678' }, argMatchMode: 'partial' }],
+          expected: [{ name: 'get_order', args: { id: 'ORD-42' }, argMatchMode: 'partial' }],
         },
       },
     },
     {
-      userMessage: 'And what about its failure count?',
+      userMessage: 'And what are the shipping details?',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
-          expected: [{ name: 'get_failures', args: { id: '12345678' }, argMatchMode: 'partial' }],
+          expected: [{ name: 'get_shipping', args: { orderId: 'ORD-42' }, argMatchMode: 'partial' }],
         },
       },
     },
   ],
   mocks: {
     tools: {
-      get_speed: () => ({ speed: 0.8, unit: 'm/s' }),
-      get_failures: () => ({ count: 5 }),
+      get_order: () => ({ status: 'shipped', items: 3 }),
+      get_shipping: () => ({ carrier: 'FedEx', eta: '2024-03-15' }),
     },
   },
 })
@@ -1043,8 +1043,8 @@ export default defineConfig({
 
   // Additional named agents
   agents: {
-    performance: { type: 'custom', name: 'performance-agent', handler: performanceHandler },
-    failure: { type: 'custom', name: 'failure-agent', handler: failureHandler },
+    billing: { type: 'custom', name: 'billing-agent', handler: billingHandler },
+    support: { type: 'custom', name: 'support-agent', handler: supportHandler },
   },
 })
 ```
@@ -1053,25 +1053,25 @@ Scenarios reference a named agent with the `agent` option:
 
 ```ts
 // Uses the default agent (supervisor)
-scenario('routes speed query correctly', {
-  turns: [{ userMessage: 'How fast was vehicle 12345678?' }],
-  assertions: { toolCalls: { matchMode: 'contains', expected: [{ name: 'performance_agent' }] } },
+scenario('routes billing query correctly', {
+  turns: [{ userMessage: 'What is the total for invoice INV-100?' }],
+  assertions: { toolCalls: { matchMode: 'contains', expected: [{ name: 'get_invoice' }] } },
 })
 
-// Targets the "failure" named agent directly
-scenario('failure agent exports to CSV', {
-  agent: 'failure',
-  turns: [{ userMessage: 'Export the failure log to CSV' }],
+// Targets the "support" named agent directly
+scenario('support agent creates a ticket', {
+  agent: 'support',
+  turns: [{ userMessage: 'I need help resetting my password' }],
   assertions: {
     toolCalls: {
       matchMode: 'contains',
-      expected: [{ name: 'get_failure_log' }, { name: 'export_to_csv' }],
+      expected: [{ name: 'create_ticket' }, { name: 'send_reset_email' }],
     },
   },
   mocks: {
     tools: {
-      get_failure_log: () => ({ failures: [] }),
-      export_to_csv: () => ({ fileId: 'abc', url: '/download/abc' }),
+      create_ticket: () => ({ ticketId: 'TK-001' }),
+      send_reset_email: () => ({ sent: true }),
     },
   },
 })
