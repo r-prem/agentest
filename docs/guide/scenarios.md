@@ -20,8 +20,8 @@ scenario('simulated booking', {
 ```ts
 scenario('scripted follow-up', {
   turns: [
-    { userMessage: 'How fast was Leo (12345678) last week?' },
-    { userMessage: 'And what about its failure count?' },
+    { userMessage: 'What is the status of order ORD-42?' },
+    { userMessage: 'And what are the shipping details?' },
   ],
 })
 ```
@@ -389,15 +389,15 @@ export default defineConfig({
 // scenarios/routing.sim.ts
 import { scenario } from '@agentesting/agentest'
 
-scenario('supervisor routes to performance agent', {
+scenario('supervisor routes to billing agent', {
   turns: [
     {
-      userMessage: 'How fast was vehicle 12345678 last week?',
+      userMessage: 'What is the total for invoice INV-100?',
       assertions: {
         toolCalls: {
           matchMode: 'contains',
           expected: [
-            { name: 'get_report_data', args: { serials: '12345678' }, argMatchMode: 'partial' },
+            { name: 'get_invoice', args: { id: 'INV-100' }, argMatchMode: 'partial' },
           ],
         },
       },
@@ -406,13 +406,13 @@ scenario('supervisor routes to performance agent', {
 
   mocks: {
     tools: {
-      get_report_data: (args) => ({ speed_avg: 0.8, unit: 'm/s' }),
+      get_invoice: (args) => ({ total: 249.99, currency: 'USD', status: 'paid' }),
     },
   },
 })
 ```
 
-When the agent internally calls `get_report_data`, the mock client calls `ctx.resolveTool('get_report_data', args)`, which:
+When the agent internally calls `get_invoice`, the mock client calls `ctx.resolveTool('get_invoice', args)`, which:
 1. Resolves through agentest's per-scenario mock definitions
 2. Records the tool call for trajectory assertions
 3. Returns the mock result to the agent
@@ -425,17 +425,17 @@ When your config defines [named agents](/guide/configuration#named-agents), scen
 
 ```ts
 // Uses the default agent
-scenario('supervisor routes to performance', {
+scenario('supervisor routes billing query', {
   turns: [
-    { userMessage: 'How fast was vehicle 12345678 last week?' },
+    { userMessage: 'What is the total for invoice INV-100?' },
   ],
 })
 
-// Targets the "failure" named agent
-scenario('failure agent calls export_to_csv', {
-  agent: 'failure',
+// Targets the "support" named agent
+scenario('support agent creates a ticket', {
+  agent: 'support',
   turns: [
-    { userMessage: 'Export the failure log to CSV' },
+    { userMessage: 'I need help resetting my password' },
   ],
 })
 ```

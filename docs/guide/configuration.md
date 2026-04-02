@@ -422,15 +422,15 @@ export default defineConfig({
 
   // Additional named agents
   agents: {
-    performance: {
+    billing: {
       type: 'custom',
-      name: 'performance-agent',
-      handler: performanceHandler,
+      name: 'billing-agent',
+      handler: billingHandler,
     },
-    failure: {
+    support: {
       type: 'custom',
-      name: 'failure-agent',
-      handler: failureHandler,
+      name: 'support-agent',
+      handler: supportHandler,
     },
   },
 })
@@ -440,33 +440,33 @@ Scenarios reference a named agent with the `agent` option:
 
 ```ts
 // Uses the default agent (supervisor)
-scenario('routes speed queries to performance agent', {
-  turns: [{ userMessage: 'How fast was vehicle 12345678?' }],
+scenario('routes billing query correctly', {
+  turns: [{ userMessage: 'What is the total for invoice INV-100?' }],
   assertions: {
     toolCalls: {
       matchMode: 'contains',
-      expected: [{ name: 'performance_agent' }],
+      expected: [{ name: 'get_invoice' }],
     },
   },
 })
 
-// Uses the named "failure" agent directly
-scenario('failure agent exports to CSV', {
-  agent: 'failure',
-  turns: [{ userMessage: 'Export the failure log to CSV' }],
+// Uses the named "support" agent directly
+scenario('support agent creates a ticket', {
+  agent: 'support',
+  turns: [{ userMessage: 'I need help resetting my password' }],
   assertions: {
     toolCalls: {
       matchMode: 'contains',
       expected: [
-        { name: 'get_failure_log', argMatchMode: 'ignore' },
-        { name: 'export_to_csv', argMatchMode: 'ignore' },
+        { name: 'create_ticket', argMatchMode: 'ignore' },
+        { name: 'send_reset_email', argMatchMode: 'ignore' },
       ],
     },
   },
   mocks: {
     tools: {
-      get_failure_log: () => ({ failures: [...] }),
-      export_to_csv: () => ({ fileId: 'abc', url: '...' }),
+      create_ticket: () => ({ ticketId: 'TK-001' }),
+      send_reset_email: () => ({ sent: true }),
     },
   },
 })

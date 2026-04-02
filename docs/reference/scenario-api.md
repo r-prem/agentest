@@ -45,11 +45,11 @@ Each turn can include per-turn trajectory assertions.
 ```ts
 turns: [
   {
-    userMessage: 'How fast was vehicle 12345678?',
+    userMessage: 'What is the status of order ORD-42?',
     assertions: {
       toolCalls: {
         matchMode: 'contains',
-        expected: [{ name: 'performance_agent', argMatchMode: 'ignore' }],
+        expected: [{ name: 'get_order', argMatchMode: 'ignore' }],
       },
     },
   },
