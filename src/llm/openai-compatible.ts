@@ -15,5 +15,5 @@ export function createOpenAICompatibleProvider(
     baseURL: options.baseURL,
     apiKey: options.apiKey ?? 'not-needed',
   })
-  return createLLMProvider(provider(modelId), 'openai-compatible', options.timeoutMs)
+  return createLLMProvider(provider.chat(modelId), 'openai-compatible', options.timeoutMs)
 }
