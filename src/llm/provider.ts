@@ -77,6 +77,12 @@ export interface ProviderOptions {
   baseURL?: string
   apiKey?: string
   timeoutMs?: number
+  /**
+   * Extra JSON fields merged into every request body. Currently honored by the
+   * `openai-compatible` and `ollama` providers. Useful for vendor-specific params
+   * like `{ chat_template_kwargs: { enable_thinking: false } }` (Qwen3).
+   */
+  extraBody?: Record<string, unknown>
 }
 
 const DEFAULT_OLLAMA_BASE_URL = 'http://localhost:11434/v1'
@@ -98,6 +104,7 @@ export async function createProvider(
         baseURL: options?.baseURL ?? DEFAULT_OLLAMA_BASE_URL,
         apiKey: options?.apiKey,
         timeoutMs: options?.timeoutMs,
+        extraBody: options?.extraBody,
       })
     case 'openai-compatible':
       if (!options?.baseURL) {
@@ -109,6 +116,7 @@ export async function createProvider(
         baseURL: options.baseURL,
         apiKey: options.apiKey,
         timeoutMs: options?.timeoutMs,
+        extraBody: options.extraBody,
       })
   }
 }
@@ -139,7 +147,12 @@ async function createGoogleProvider(
 
 async function createOpenAICompatProvider(
   modelId: string,
-  options: { baseURL: string; apiKey?: string; timeoutMs?: number },
+  options: {
+    baseURL: string
+    apiKey?: string
+    timeoutMs?: number
+    extraBody?: Record<string, unknown>
+  },
 ): Promise<LLMProvider> {
   const { createOpenAICompatibleProvider: create } = await import('./openai-compatible.js')
   return create(modelId, options)

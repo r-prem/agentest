@@ -16,8 +16,15 @@ describe('defineConfig', () => {
     expect(config.conversationsPerScenario).toBe(3)
     expect(config.maxTurns).toBe(8)
     expect(config.concurrency).toBe(20)
+    expect(config.retries).toBe(0)
     expect(config.unmockedTools).toBe('error')
     expect(config.reporters).toEqual(['console'])
+  })
+
+  it('accepts a retries setting and rejects negative values', () => {
+    const config = defineConfig({ agent: validAgent, retries: 2 })
+    expect(config.retries).toBe(2)
+    expect(() => defineConfig({ agent: validAgent, retries: -1 })).toThrow()
   })
 
   it('accepts a fully specified config', () => {

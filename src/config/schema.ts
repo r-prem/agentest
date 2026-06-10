@@ -119,6 +119,7 @@ export const configSchema = z.object({
     .object({
       baseURL: z.string().url().optional(),
       apiKey: z.string().optional(),
+      extraBody: z.record(z.unknown()).optional(),
     })
     .optional(),
 
@@ -127,6 +128,14 @@ export const configSchema = z.object({
   requestTimeoutMs: z.number().int().min(1000).max(300_000).default(30_000),
   concurrency: z.number().int().min(1).max(100).default(20),
   debounceMs: z.number().int().min(0).max(300_000).default(0),
+  /**
+   * Re-run failed scenarios up to this many times AFTER the parallel pass,
+   * serially — by then resource contention (e.g. a local LLM serving
+   * `concurrency` scenarios at once) has subsided, which is the typical
+   * flaky-failure profile. A scenario that passes on retry counts as passed
+   * and carries `retried: <attempt>` in its result.
+   */
+  retries: z.number().int().min(0).max(5).default(0),
 
   metrics: z
     .array(

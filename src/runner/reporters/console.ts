@@ -90,6 +90,15 @@ export class ConsoleReporter implements Reporter {
     console.log(
       `${BOLD}${color}${result.passedScenarios}/${result.totalScenarios} scenarios passed${RESET}`,
     )
+    // Flaky scenarios that only passed on retry stay visible — a rising count
+    // here means the suite is degrading even while it stays green.
+    const flaky = result.scenarioResults.filter((r) => r.retried)
+    if (flaky.length > 0) {
+      console.log(`${YELLOW}${flaky.length} passed only on retry:${RESET}`)
+      for (const r of flaky) {
+        console.log(`${YELLOW}  ↻ ${r.scenario.name} (retry ${r.retried})${RESET}`)
+      }
+    }
     console.log()
   }
 

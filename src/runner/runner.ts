@@ -13,6 +13,7 @@ import { ErrorDetection, type UniqueError, type FailureTurn } from '../evaluator
 import { createProvider } from '../llm/provider.js'
 import type { LLMProvider } from '../llm/provider.js'
 import { computeThresholdViolations } from '../evaluator/scoring.js'
+import { retryFailedScenarios } from './retry.js'
 import type { DiscoveryResult } from './discovery.js'
 import type { Reporter, ProgressEvent } from './reporters/types.js'
 
@@ -29,6 +30,8 @@ export interface ScenarioResult {
   perTurnTrajectoryResults: Map<string, PerTurnTrajectoryResult[]>
   errors: UniqueError[]
   passed: boolean
+  /** Set when the scenario failed the parallel pass and passed on retry N. */
+  retried?: number
 }
 
 export interface RunResult {
@@ -114,13 +117,29 @@ export class Runner {
     }
 
     // Run all scenarios in parallel (bounded by concurrency)
-    const scenarioResults = await Promise.all(
+    let scenarioResults = await Promise.all(
       allScenarios.map((scenario) =>
         this.limit(async () => {
           await this.debounce()
           return this.runScenario(scenario, simulator, evaluator, trajectoryMatcher, errorDetection)
         }),
       ),
+    )
+
+    // Re-run failures serially — after the parallel pass, resource contention
+    // has subsided, which is the typical flaky-failure profile.
+    scenarioResults = await retryFailedScenarios(
+      scenarioResults,
+      this.config.retries,
+      (scenario, attempt) => {
+        this.emitProgress({
+          scenario: scenario.name,
+          conversationId: '',
+          phase: 'simulating',
+          detail: `retry ${attempt}/${this.config.retries}`,
+        })
+        return this.runScenario(scenario, simulator, evaluator, trajectoryMatcher, errorDetection)
+      },
     )
 
     const passedScenarios = scenarioResults.filter((r) => r.passed).length
