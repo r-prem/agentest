@@ -52,6 +52,18 @@ export class AgentestError extends Error {
 
 export class MockResolver {
   private callCounts = new Map<string, number>()
+  /**
+   * Every unmocked call seen this conversation, recorded even though `resolve()` also
+   * throws. The throw alone is not dependable: for a `type: 'custom'` agent it surfaces
+   * inside the consumer's own tool implementation, and agent frameworks catch tool errors
+   * by design so the model can recover from a genuinely failing tool (LangGraph's ToolNode
+   * does this by default). Our error is then handed to the model as an ordinary tool
+   * result and the run continues, reporting a downstream symptom instead of the cause.
+   *
+   * The simulator reads this ledger after the handler returns and fails the conversation
+   * on the record alone — no propagation required.
+   */
+  private unmocked: Array<{ toolName: string; turnIndex: number; message: string }> = []
 
   constructor(
     private mocks: Record<string, ToolMockFn> | undefined,
@@ -60,8 +72,14 @@ export class MockResolver {
     private conversationId: string,
   ) {}
 
+  /** Unmocked calls recorded this conversation, in the order they happened. */
+  get unmockedCalls(): ReadonlyArray<{ toolName: string; turnIndex: number; message: string }> {
+    return this.unmocked
+  }
+
   reset(): void {
     this.callCounts = new Map()
+    this.unmocked = []
     if (this.mocks) {
       for (const mock of Object.values(this.mocks)) {
         if (isSequenceMock(mock)) {
@@ -80,7 +98,7 @@ export class MockResolver {
 
     if (!mock) {
       if (this.unmockedBehavior === 'error') {
-        throw new AgentestError(
+        const error = new AgentestError(
           `Agent called unmocked tool "${toolName}"\n` +
             `  in scenario: "${this.scenarioName}"\n` +
             `  conversation: ${this.conversationId}\n` +
@@ -100,6 +118,9 @@ export class MockResolver {
             toolName,
           },
         )
+        // Record BEFORE throwing — the throw may be swallowed downstream (see `unmocked`).
+        this.unmocked.push({ toolName, turnIndex, message: error.message })
+        throw error
       }
       return { result: undefined, mocked: false }
     }

@@ -54,6 +54,21 @@ function sanitizeValue(val: unknown): unknown {
   return clean
 }
 
+/**
+ * The conversation-failing message for any unmocked tool call, or undefined when there
+ * were none. Names every distinct tool so one run fixes every missing mock at once.
+ */
+function unmockedError(resolver: MockResolver): string | undefined {
+  const calls = resolver.unmockedCalls
+  if (calls.length === 0) return undefined
+  const first = calls[0].message
+  // Distinct OTHER tools only — the same tool called repeatedly is one missing mock,
+  // not several, and repeating its name in the summary line just reads like a bug.
+  const others = [...new Set(calls.map((c) => c.toolName))].filter((n) => n !== calls[0].toolName)
+  if (others.length === 0) return first
+  return `${first}\n\n  Also unmocked in this conversation: ${others.join(', ')}`
+}
+
 export class Simulator {
   private agentClient: AgentClient
   private config: AgentestConfig
@@ -238,14 +253,27 @@ export class Simulator {
         }
       }
     } catch (error) {
+      // An unmocked call is the ROOT cause of anything else that went wrong afterwards,
+      // so it outranks whatever error actually surfaced.
       const errorMessage =
-        error instanceof AgentestError
+        unmockedError(mockResolver) ??
+        (error instanceof AgentestError
           ? error.message
           : error instanceof Error
             ? error.message
-            : String(error)
+            : String(error))
 
       return { conversationId, turns, error: errorMessage }
+    }
+
+    // The conversation "succeeded" — but if any tool was unmocked, the agent only got
+    // that far by working around OUR error. Fail on the ledger, not on the throw: a
+    // custom handler's framework will have swallowed it (see MockResolver.unmocked).
+    // This runs before any assertion is evaluated, so a `forbidden` assertion can never
+    // pass vacuously on a conversation that was cut short.
+    const unmocked = unmockedError(mockResolver)
+    if (unmocked) {
+      return { conversationId, turns, error: unmocked }
     }
 
     return { conversationId, turns }
